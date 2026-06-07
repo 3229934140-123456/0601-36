@@ -293,3 +293,256 @@
   font-size: $font-size-sm;
   color: $color-text-tertiary;
 }
+
+.emptyHint {
+  font-size: $font-size-xs;
+  color: $color-text-placeholder;
+  margin-top: $spacing-xs;
+}
+
+.photoTabs {
+  display: flex;
+  gap: $spacing-md;
+  margin-bottom: $spacing-md;
+  padding-bottom: $spacing-sm;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.photoTab {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  padding: $spacing-xs 0;
+  position: relative;
+
+  &Active {
+    color: $color-primary;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.photoEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-xl 0;
+}
+
+.photoEmptyIcon {
+  font-size: 48rpx;
+  margin-bottom: $spacing-sm;
+}
+
+.photoEmptyText {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.followTabs {
+  display: flex;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.followTab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $spacing-md $spacing-sm;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  gap: 4rpx;
+
+  &Active {
+    background: rgba($color-primary, 0.1);
+  }
+}
+
+.followTabIcon {
+  font-size: 32rpx;
+}
+
+.followTabLabel {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+
+  .followTabActive & {
+    color: $color-primary;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.followList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.followItem {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-sm 0;
+}
+
+.followAvatar {
+  flex-shrink: 0;
+}
+
+.followInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.followName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin-bottom: 4rpx;
+  @include text-ellipsis;
+}
+
+.followCompany {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  @include text-ellipsis;
+}
+
+.followActions {
+  flex-shrink: 0;
+}
+
+.followStatus {
+  padding: $spacing-xs $spacing-md;
+  border-radius: $radius-round;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+}
+
+.followPending {
+  background: rgba($color-warning, 0.1);
+  color: $color-warning;
+}
+
+.followContacted {
+  background: rgba($color-success, 0.1);
+  color: $color-success;
+}
+
+.followAddBtn {
+  padding: $spacing-xs $spacing-md;
+  border-radius: $radius-round;
+  background: $color-primary;
+  color: #fff;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+}
+
+.photoDetailModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-lg;
+}
+
+.photoDetailContent {
+  width: 100%;
+  max-width: 600rpx;
+  background: $color-bg-card;
+  border-radius: $radius-xl;
+  overflow: hidden;
+  position: relative;
+}
+
+.photoDetailImg {
+  width: 100%;
+  height: 400rpx;
+  object-fit: cover;
+  display: block;
+}
+
+.photoDetailInfo {
+  padding: $spacing-md;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.photoPublisher {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.photoPublisherName {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.photoMoment {
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+}
+
+.photoMomentLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-xs;
+}
+
+.photoMomentContent {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  line-height: 1.5;
+  margin-bottom: $spacing-xs;
+}
+
+.photoMomentLink {
+  font-size: $font-size-xs;
+  color: $color-primary;
+}
+
+.photoActivity {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: $spacing-sm;
+  border-top: 1rpx solid $color-divider;
+}
+
+.photoActivityLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.photoActivityName {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.photoDetailClose {
+  position: absolute;
+  top: $spacing-sm;
+  right: $spacing-sm;
+  width: 56rpx;
+  height: 56rpx;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  border-radius: $radius-round;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  z-index: 10;
+}

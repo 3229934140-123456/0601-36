@@ -246,6 +246,52 @@
   flex-shrink: 0;
 }
 
+.favStar {
+  font-size: $font-size-sm;
+}
+
+.cardActions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: $spacing-xs;
+  flex-shrink: 0;
+}
+
+.followBtn {
+  padding: $spacing-xs $spacing-sm;
+  background: $color-primary;
+  color: #fff;
+  border-radius: $radius-round;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+}
+
+.followBtnDone {
+  padding: $spacing-xs $spacing-sm;
+  background: rgba($color-success, 0.1);
+  color: $color-success;
+  border-radius: $radius-round;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+}
+
+.followBadgePending {
+  font-size: 20rpx;
+  color: $color-warning;
+  background: rgba($color-warning, 0.1);
+  padding: 2rpx 12rpx;
+  border-radius: $radius-xs;
+}
+
+.followBadgeDone {
+  font-size: 20rpx;
+  color: $color-success;
+  background: rgba($color-success, 0.1);
+  padding: 2rpx 12rpx;
+  border-radius: $radius-xs;
+}
+
 .emptyState {
   display: flex;
   flex-direction: column;

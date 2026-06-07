@@ -2,59 +2,104 @@ import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { View, Text, ScrollView, Image } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
 import classnames from 'classnames';
+import { Moment, User } from '@/types';
 import { mockParticipants } from '@/data/users';
+import { mockMoments } from '@/data/moments';
 import { useUserStore } from '@/store/useUserStore';
 import { useActivityStore } from '@/store/useActivityStore';
 import UserAvatar from '@/components/UserAvatar';
 import styles from './index.module.scss';
 
-const reviewPhotos = [
-  'https://picsum.photos/id/237/400/400',
-  'https://picsum.photos/id/238/400/400',
-  'https://picsum.photos/id/239/400/400',
-  'https://picsum.photos/id/240/400/400',
-  'https://picsum.photos/id/241/400/400',
-  'https://picsum.photos/id/242/400/400',
-  'https://picsum.photos/id/243/400/400',
-  'https://picsum.photos/id/244/400/400',
-  'https://picsum.photos/id/245/400/400'
+const photoTabs = [
+  { key: 'all', label: '全部' },
+  { key: 'mine', label: '我的' },
+  { key: 'group', label: '同组' },
+  { key: 'favorite', label: '收藏' }
 ];
+
+const followUpTabs = [
+  { key: 'favorites', label: '收藏', icon: '⭐' },
+  { key: 'cards', label: '名片', icon: '💳' },
+  { key: 'chats', label: '聊过', icon: '💬' }
+];
+
+interface PhotoItem {
+  url: string;
+  id: string;
+  type: string;
+  momentId?: string;
+  publisherId: string;
+}
+
+interface FollowUpPerson extends User {
+  followUpStatus: string;
+  source: string;
+}
 
 const ActivityReviewPage: React.FC = () => {
   const router = useRouter();
   const activityId = router.params.activityId || '1';
-  const { toggleFavorite, favorites } = useUserStore();
-  const { getActivity, getActivityMoments, getActivityQuestions, topicQuestions } =
-    useActivityStore();
+  const {
+    favorites,
+    favoriteRecords,
+    toggleFavorite,
+    setFollowUpStatus,
+    getFollowUpStatus
+  } = useUserStore();
+  const {
+    getActivity,
+    getActivityMoments,
+    getActivityQuestions,
+    topicQuestions,
+    myMoments,
+    exchangedCards,
+    setTargetMoment
+  } = useActivityStore();
 
   const activity = getActivity(activityId);
+  const [activePhotoTab, setActivePhotoTab] = useState('all');
+  const [activeFollowTab, setActiveFollowTab] = useState('favorites');
+  const [showPhotoDetail, setShowPhotoDetail] = useState<PhotoItem | null>(null);
 
   const isFav = useCallback(
     (userId: string) => favorites.includes(userId),
     [favorites]
   );
 
-  const reviewPhotos = useMemo(() => {
+  const activityMoments = useMemo(
+    () => getActivityMoments(activityId),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [activityId, topicQuestions, myMoments]
+  );
+
+  const reviewPhotos: PhotoItem[] = useMemo(() => {
     const baseId = parseInt(activityId) * 50 + 200;
-    return Array.from({ length: 9 }, (_, i) => `https://picsum.photos/id/${baseId + i}/400/400`);
+    return Array.from({ length: 12 }, (_, i) => ({
+      url: `https://picsum.photos/id/${baseId + i}/400/400`,
+      id: `p${baseId + i}`,
+      type: i < 2 ? 'mine' : i < 5 ? 'group' : 'all',
+      momentId: i % 2 === 0 ? mockMoments[i % mockMoments.length]?.id : undefined,
+      publisherId: mockParticipants[i % mockParticipants.length]?.id || '1'
+    }));
   }, [activityId]);
+
+  const displayPhotos = useMemo(() => {
+    switch (activePhotoTab) {
+      case 'mine':
+        return reviewPhotos.filter((p) => p.type === 'mine');
+      case 'group':
+        return reviewPhotos.filter((p) => p.type === 'group');
+      case 'favorite':
+        return reviewPhotos.filter((p) => isFav(p.publisherId));
+      default:
+        return reviewPhotos;
+    }
+  }, [activePhotoTab, reviewPhotos, isFav]);
 
   const metPeople = useMemo(() => {
     const start = (parseInt(activityId) - 1) * 2;
     return mockParticipants.slice(start, start + 8);
   }, [activityId]);
-
-  useEffect(() => {
-    console.log('[ActivityReview] 活动回顾页，活动ID:', activityId);
-    Taro.setNavigationBarTitle({ title: '活动回顾' });
-  }, [activityId]);
-
-  const displayPhotos = useMemo(() => reviewPhotos.slice(0, 8), [reviewPhotos]);
-  const hasMorePhotos = reviewPhotos.length > 8;
-
-  const displayMoments = useMemo(() => {
-    return getActivityMoments(activityId).slice(0, 3);
-  }, [activityId, topicQuestions]);
 
   const hotQuestions = useMemo(() => {
     const questions = getActivityQuestions(activityId);
@@ -62,17 +107,83 @@ const ActivityReviewPage: React.FC = () => {
       .filter((q) => q.isApproved)
       .sort((a, b) => b.likeCount - a.likeCount)
       .slice(0, 3);
-  }, [activityId, topicQuestions]);
+  }, [activityId, topicQuestions, getActivityQuestions]);
+
+  const displayMoments = useMemo(() => {
+    return activityMoments.slice(0, 3);
+  }, [activityMoments]);
+
+  const followUpList: FollowUpPerson[] = useMemo(() => {
+    switch (activeFollowTab) {
+      case 'favorites':
+        return favoriteRecords
+          .filter((r) => r.activityId === activityId)
+          .map((r) => {
+            const user = mockParticipants.find((p) => p.id === r.userId);
+            return { ...(user as any), followUpStatus: r.followUpStatus, source: 'favorite' };
+          })
+          .filter((u) => u.id);
+      case 'cards':
+        return exchangedCards
+          .map((id) => {
+            const user = mockParticipants.find((p) => p.id === id);
+            const record = favoriteRecords.find((r) => r.userId === id);
+            return {
+              ...(user as any),
+              followUpStatus: record?.followUpStatus || 'none',
+              source: 'card'
+            };
+          })
+          .filter((u) => u.id);
+      case 'chats':
+        return mockParticipants
+          .slice(0, 4)
+          .map((p) => {
+            const record = favoriteRecords.find((r) => r.userId === p.id);
+            return {
+              ...p,
+              followUpStatus: record?.followUpStatus || 'none',
+              source: 'chat'
+            } as FollowUpPerson;
+          })
+          .filter((u) => exchangedCards.includes(u.id) || favorites.includes(u.id));
+      default:
+        return [];
+    }
+  }, [activeFollowTab, favoriteRecords, activityId, exchangedCards, favorites]);
+
+  const selectedPhotoMoment = useMemo(() => {
+    if (!showPhotoDetail?.momentId) return null;
+    return activityMoments.find((m) => m.id === showPhotoDetail.momentId) || mockMoments.find((m) => m.id === showPhotoDetail.momentId);
+  }, [showPhotoDetail, activityMoments]);
+
+  const selectedPublisher = useMemo(() => {
+    if (!showPhotoDetail?.publisherId) return null;
+    return mockParticipants.find((p) => p.id === showPhotoDetail.publisherId);
+  }, [showPhotoDetail]);
+
+  useEffect(() => {
+    console.log('[ActivityReview] 活动回顾页，活动ID:', activityId);
+    Taro.setNavigationBarTitle({ title: '活动回顾' });
+  }, [activityId]);
+
+  const handlePhotoClick = useCallback((photo: PhotoItem) => {
+    setShowPhotoDetail(photo);
+  }, []);
+
+  const handleClosePhotoDetail = useCallback(() => {
+    setShowPhotoDetail(null);
+  }, []);
 
   const handlePhotoPreview = useCallback(
     (index: number) => {
       console.log('[ActivityReview] 预览照片', index);
       Taro.previewImage({
-        urls: reviewPhotos,
-        current: reviewPhotos[index]
+        urls: displayPhotos.map((p) => p.url),
+        current: displayPhotos[index]?.url
       });
     },
-    [reviewPhotos]
+    [displayPhotos]
   );
 
   const handleUserClick = useCallback((userId: string, userName?: string) => {
@@ -87,13 +198,25 @@ const ActivityReviewPage: React.FC = () => {
     (userId: string) => {
       console.log('[ActivityReview] 切换收藏:', userId);
       const isCurrentlyFav = isFav(userId);
-      toggleFavorite(userId);
+      toggleFavorite(userId, activityId);
       Taro.showToast({
         title: isCurrentlyFav ? '已取消收藏' : '已收藏',
         icon: 'none'
       });
     },
-    [toggleFavorite, isFav]
+    [toggleFavorite, isFav, activityId]
+  );
+
+  const handleSetFollowUp = useCallback(
+    (userId: string, status: 'pending' | 'contacted') => {
+      console.log('[ActivityReview] 设置跟进状态:', userId, status);
+      setFollowUpStatus(userId, status);
+      Taro.showToast({
+        title: status === 'pending' ? '已设为待跟进' : '已设为已联系',
+        icon: 'none'
+      });
+    },
+    [setFollowUpStatus]
   );
 
   const handleMoreMoments = useCallback(() => {
@@ -107,9 +230,10 @@ const ActivityReviewPage: React.FC = () => {
   const handleMomentClick = useCallback(
     (momentId: string) => {
       console.log('[ActivityReview] 查看动态:', momentId);
+      setTargetMoment(momentId);
       Taro.switchTab({ url: '/pages/moments/index' });
     },
-    []
+    [setTargetMoment]
   );
 
   return (
@@ -135,25 +259,37 @@ const ActivityReviewPage: React.FC = () => {
             <Text className={styles.sectionCount}>{reviewPhotos.length}张</Text>
           </Text>
         </View>
-        <View className={styles.photoGrid}>
-          {displayPhotos.map((photo, index) => (
-            <View
-              key={index}
-              className={styles.photoItem}
-              onClick={() => handlePhotoPreview(index)}
+
+        <View className={styles.photoTabs}>
+          {photoTabs.map((tab) => (
+            <Text
+              key={tab.key}
+              className={classnames(
+                styles.photoTab,
+                activePhotoTab === tab.key && styles.photoTabActive
+              )}
+              onClick={() => setActivePhotoTab(tab.key)}
             >
-              <Image className={styles.photoImg} src={photo} mode="aspectFill" />
-            </View>
+              {tab.label}
+            </Text>
           ))}
-          {hasMorePhotos && (
-            <View
-              className={styles.photoMore}
-              onClick={() => handlePhotoPreview(0)}
-            >
-              <Text className={styles.photoMoreIcon}>📷</Text>
-              <Text className={styles.photoMoreText}>
-                全部{reviewPhotos.length}张
-              </Text>
+        </View>
+
+        <View className={styles.photoGrid}>
+          {displayPhotos.length > 0 ? (
+            displayPhotos.map((photo, index) => (
+              <View
+                key={photo.id}
+                className={styles.photoItem}
+                onClick={() => handlePhotoClick(photo)}
+              >
+                <Image className={styles.photoImg} src={photo.url} mode="aspectFill" />
+              </View>
+            ))
+          ) : (
+            <View className={styles.photoEmpty}>
+              <Text className={styles.photoEmptyIcon}>🖼️</Text>
+              <Text className={styles.photoEmptyText}>暂无此类照片</Text>
             </View>
           )}
         </View>
@@ -164,7 +300,7 @@ const ActivityReviewPage: React.FC = () => {
           <Text className={styles.sectionTitle}>
             💬 现场动态
             <Text className={styles.sectionCount}>
-              {getActivityMoments(activityId).length}条
+              {activityMoments.length}条
             </Text>
           </Text>
           <Text className={styles.sectionMore} onClick={handleMoreMoments}>
@@ -302,6 +438,143 @@ const ActivityReviewPage: React.FC = () => {
           })}
         </View>
       </View>
+
+      <View className={styles.section}>
+        <View className={styles.sectionHeader}>
+          <Text className={styles.sectionTitle}>📋 跟进清单</Text>
+        </View>
+
+        <View className={styles.followTabs}>
+          {followUpTabs.map((tab) => (
+            <View
+              key={tab.key}
+              className={classnames(
+                styles.followTab,
+                activeFollowTab === tab.key && styles.followTabActive
+              )}
+              onClick={() => setActiveFollowTab(tab.key)}
+            >
+              <Text className={styles.followTabIcon}>{tab.icon}</Text>
+              <Text className={styles.followTabLabel}>{tab.label}</Text>
+            </View>
+          ))}
+        </View>
+
+        {followUpList.length > 0 ? (
+          <View className={styles.followList}>
+            {followUpList.map((person) => (
+              <View key={person.id} className={styles.followItem}>
+                <View
+                  className={styles.followAvatar}
+                  onClick={() => handleUserClick(person.id, person.name)}
+                >
+                  <UserAvatar src={person.avatar} size="large" />
+                </View>
+                <View
+                  className={styles.followInfo}
+                  onClick={() => handleUserClick(person.id, person.name)}
+                >
+                  <Text className={styles.followName}>{person.name}</Text>
+                  <Text className={styles.followCompany}>
+                    {person.company} · {person.position}
+                  </Text>
+                </View>
+                <View className={styles.followActions}>
+                  {person.followUpStatus === 'pending' ? (
+                    <View
+                      className={classnames(styles.followStatus, styles.followPending)}
+                      onClick={() => handleSetFollowUp(person.id, 'contacted')}
+                    >
+                      <Text>待跟进</Text>
+                    </View>
+                  ) : person.followUpStatus === 'contacted' ? (
+                    <View
+                      className={classnames(styles.followStatus, styles.followContacted)}
+                      onClick={() => handleSetFollowUp(person.id, 'pending')}
+                    >
+                      <Text>✓ 已联系</Text>
+                    </View>
+                  ) : (
+                    <View
+                      className={styles.followAddBtn}
+                      onClick={() => {
+                        if (!isFav(person.id)) {
+                          handleToggleFav(person.id);
+                        }
+                        handleSetFollowUp(person.id, 'pending');
+                      }}
+                    >
+                      <Text>+ 待跟进</Text>
+                    </View>
+                  )}
+                </View>
+              </View>
+            ))}
+          </View>
+        ) : (
+          <View className={styles.emptyState}>
+            <Text className={styles.emptyIcon}>📋</Text>
+            <Text className={styles.emptyText}>还没有跟进记录</Text>
+            <Text className={styles.emptyHint}>收藏或交换名片后会出现在这里</Text>
+          </View>
+        )}
+      </View>
+
+      {showPhotoDetail && (
+        <View className={styles.photoDetailModal} onClick={handleClosePhotoDetail}>
+          <View className={styles.photoDetailContent} onClick={(e) => e.stopPropagation?.()}>
+            <Image
+              className={styles.photoDetailImg}
+              src={showPhotoDetail.url}
+              mode="aspectFill"
+            />
+
+            <View className={styles.photoDetailInfo}>
+              {selectedPublisher && (
+                <View
+                  className={styles.photoPublisher}
+                  onClick={() => {
+                    handleClosePhotoDetail();
+                    handleUserClick(selectedPublisher.id, selectedPublisher.name);
+                  }}
+                >
+                  <UserAvatar src={selectedPublisher.avatar} size="small" />
+                  <Text className={styles.photoPublisherName}>
+                    {selectedPublisher.name}
+                  </Text>
+                </View>
+              )}
+
+              {selectedPhotoMoment && (
+                <View
+                  className={styles.photoMoment}
+                  onClick={() => {
+                    handleClosePhotoDetail();
+                    handleMomentClick(selectedPhotoMoment.id);
+                  }}
+                >
+                  <Text className={styles.photoMomentLabel}>关联动态</Text>
+                  <Text className={styles.photoMomentContent}>
+                    {selectedPhotoMoment.content.slice(0, 50)}...
+                  </Text>
+                  <Text className={styles.photoMomentLink}>查看详情 ›</Text>
+                </View>
+              )}
+
+              <View className={styles.photoActivity}>
+                <Text className={styles.photoActivityLabel}>活动</Text>
+                <Text className={styles.photoActivityName}>
+                  {activity?.title || '活动'}
+                </Text>
+              </View>
+            </View>
+
+            <View className={styles.photoDetailClose} onClick={handleClosePhotoDetail}>
+              <Text>✕</Text>
+            </View>
+          </View>
+        </View>
+      )}
     </ScrollView>
   );
 };

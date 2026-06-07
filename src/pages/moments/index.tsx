@@ -19,10 +19,17 @@ const filterTabs = [
 const MomentsPage: React.FC = () => {
   const router = useRouter();
   const { currentUser } = useUserStore();
-  const { addMoment, addComment, getActivityMoments, targetMomentId, setTargetMoment } =
-    useActivityStore();
+  const {
+    addMoment,
+    addComment,
+    getActivityMoments,
+    targetMomentId,
+    setTargetMoment,
+    myMoments,
+    myComments
+  } = useActivityStore();
   const [activeFilter, setActiveFilter] = useState('all');
-  const [moments, setMoments] = useState<Moment[]>(mockMoments);
+  const [moments, setMoments] = useState<Moment[]>([]);
   const [likedMoments, setLikedMoments] = useState<string[]>(
     mockMoments.filter((m) => m.isLiked).map((m) => m.id)
   );
@@ -38,32 +45,53 @@ const MomentsPage: React.FC = () => {
   const [showComments, setShowComments] = useState<Record<string, boolean>>({});
 
   const scrollRef = useRef<any>(null);
+  const momentRefs = useRef<Record<string, any>>({});
 
-  useEffect(() => {
+  const loadMoments = useCallback(() => {
+    const storeMoments = getActivityMoments('1');
+    const allMoments = [...storeMoments, ...mockMoments];
+    const seen = new Set<string>();
+    const unique = allMoments.filter((m) => {
+      if (seen.has(m.id)) return false;
+      seen.add(m.id);
+      return true;
+    });
+    setMoments(unique);
+
     const map: Record<string, Comment[]> = {};
-    mockMoments.forEach((m) => {
-      map[m.id] = mockComments;
+    unique.forEach((m) => {
+      const storeComments = myComments[m.id] || [];
+      map[m.id] = [...storeComments, ...mockComments];
     });
     setCommentsMap(map);
-    console.log('[Moments] 页面加载完成，动态数量:', moments.length);
-  }, []);
+  }, [getActivityMoments, myComments]);
+
+  useEffect(() => {
+    loadMoments();
+  }, [loadMoments]);
 
   useDidShow(() => {
+    loadMoments();
+
     if (targetMomentId) {
-      console.log('[Moments] 定位到动态:', targetMomentId);
       const targetId = targetMomentId;
       setTargetMoment(null);
 
       setTimeout(() => {
-        const idx = moments.findIndex((m) => m.id === targetId);
-        if (idx >= 0 && scrollRef.current) {
-          scrollRef.current.scrollToOffset?.({
-            offset: idx * 320,
-            animated: true
-          });
-          setShowComments((prev) => ({ ...prev, [targetId]: true }));
+        const targetEl = momentRefs.current[targetId];
+        if (targetEl) {
+          targetEl.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
+        } else {
+          const idx = moments.findIndex((m) => m.id === targetId);
+          if (idx >= 0 && scrollRef.current) {
+            scrollRef.current.scrollToOffset?.({
+              offset: idx * 350,
+              animated: true
+            });
+          }
         }
-      }, 400);
+        setShowComments((prev) => ({ ...prev, [targetId]: true }));
+      }, 500);
     }
   });
 
@@ -324,7 +352,13 @@ const MomentsPage: React.FC = () => {
       <ScrollView scrollY className={styles.momentList} ref={scrollRef}>
         {filteredMoments.length > 0 ? (
           filteredMoments.map((moment) => (
-            <View key={moment.id} className={styles.momentCard}>
+            <View
+              key={moment.id}
+              className={styles.momentCard}
+              ref={(el) => {
+                if (el) momentRefs.current[moment.id] = el;
+              }}
+            >
               <View className={styles.momentHeader}>
                 <View onClick={() => handleUserClick(moment.userId)}>
                   <UserAvatar src={moment.userAvatar} size="medium" />

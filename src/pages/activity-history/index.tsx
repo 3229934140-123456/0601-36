@@ -14,6 +14,7 @@ const tabs = [
   { key: 'activities', label: '活动' },
   { key: 'moments', label: '动态' },
   { key: 'comments', label: '评论' },
+  { key: 'favorites', label: '收藏' },
   { key: 'cards', label: '名片' }
 ];
 
@@ -21,6 +22,7 @@ const ActivityHistoryPage: React.FC = () => {
   const router = useRouter();
   const initialTab = router.params.tab || 'activities';
   const { currentUser } = useUserStore();
+  const { favorites, favoriteRecords, getFollowUpStatus, setFollowUpStatus } = useUserStore();
   const {
     joinedActivities,
     myMoments,
@@ -83,6 +85,22 @@ const ActivityHistoryPage: React.FC = () => {
     return comments.sort((a, b) => b.id.localeCompare(a.id));
   }, [myComments]);
 
+  const favoriteList = useMemo(() => {
+    if (favorites.length === 0) return [];
+    return favoriteRecords
+      .map((record) => {
+        const user = mockParticipants.find((p) => p.id === record.userId);
+        if (!user) return null;
+        return {
+          ...user,
+          addedAt: record.addedAt,
+          followUpStatus: record.followUpStatus,
+          activityId: record.activityId
+        };
+      })
+      .filter(Boolean);
+  }, [favorites, favoriteRecords]);
+
   const exchangedCardsList = useMemo(() => {
     if (exchangedCards.length === 0) {
       return [];
@@ -126,6 +144,26 @@ const ActivityHistoryPage: React.FC = () => {
       url: `/pages/chat-detail/index?userId=${userId}`
     });
   }, []);
+
+  const handleFavoriteClick = useCallback((userId: string, userName?: string) => {
+    console.log('[ActivityHistory] 查看收藏用户:', userId);
+    const nameParam = userName ? `&userName=${encodeURIComponent(userName)}` : '';
+    Taro.navigateTo({
+      url: `/pages/chat-detail/index?userId=${userId}${nameParam}`
+    });
+  }, []);
+
+  const handleSetFollowUp = useCallback(
+    (userId: string, status: 'pending' | 'contacted') => {
+      console.log('[ActivityHistory] 设置跟进:', userId, status);
+      setFollowUpStatus(userId, status);
+      Taro.showToast({
+        title: status === 'pending' ? '已设为待跟进' : '已设为已联系',
+        icon: 'none'
+      });
+    },
+    [setFollowUpStatus]
+  );
 
   const handleTabChange = useCallback((tab: string) => {
     setActiveTab(tab);
@@ -276,6 +314,91 @@ const ActivityHistoryPage: React.FC = () => {
                 <Text className={styles.emptyText}>还没有评论过任何人</Text>
                 <View className={styles.emptyBtn} onClick={handleGoMoments}>
                   <Text className={styles.emptyBtnText}>去看看</Text>
+                </View>
+              </View>
+            )}
+          </>
+        )}
+
+        {activeTab === 'favorites' && (
+          <>
+            {favoriteList.length > 0 ? (
+              favoriteList.map((person: any) => (
+                <View
+                  key={person.id}
+                  className={styles.listItem}
+                  onClick={() => handleFavoriteClick(person.id, person.name)}
+                >
+                  <View className={styles.cardItem}>
+                    <Image
+                      className={styles.cardAvatar}
+                      src={person.avatar}
+                      mode="aspectFill"
+                    />
+                    <View className={styles.cardInfo}>
+                      <Text className={styles.cardName}>
+                        {person.name}
+                        <Text className={styles.favStar}> ⭐</Text>
+                      </Text>
+                      <Text className={styles.cardCompany}>
+                        {person.company} · {person.position}
+                      </Text>
+                      <View className={styles.cardTags}>
+                        {person.tags?.slice?.(0, 2)?.map?.((tag, i) => (
+                          <Text key={i} className={styles.cardTag}>
+                            {tag}
+                          </Text>
+                        ))}
+                        {person.followUpStatus === 'pending' && (
+                          <Text className={styles.followBadgePending}>待跟进</Text>
+                        )}
+                        {person.followUpStatus === 'contacted' && (
+                          <Text className={styles.followBadgeDone}>已联系</Text>
+                        )}
+                      </View>
+                    </View>
+                    <View className={styles.cardActions}>
+                      {person.followUpStatus === 'pending' ? (
+                        <View
+                          className={styles.followBtn}
+                          onClick={(e) => {
+                            e.stopPropagation?.();
+                            handleSetFollowUp(person.id, 'contacted');
+                          }}
+                        >
+                          <Text>标记已联系</Text>
+                        </View>
+                      ) : person.followUpStatus === 'contacted' ? (
+                        <View
+                          className={styles.followBtnDone}
+                          onClick={(e) => {
+                            e.stopPropagation?.();
+                            handleSetFollowUp(person.id, 'pending');
+                          }}
+                        >
+                          <Text>✓ 已联系</Text>
+                        </View>
+                      ) : (
+                        <View
+                          className={styles.followBtn}
+                          onClick={(e) => {
+                            e.stopPropagation?.();
+                            handleSetFollowUp(person.id, 'pending');
+                          }}
+                        >
+                          <Text>+ 待跟进</Text>
+                        </View>
+                      )}
+                    </View>
+                  </View>
+                </View>
+              ))
+            ) : (
+              <View className={styles.emptyState}>
+                <Text className={styles.emptyIcon}>⭐</Text>
+                <Text className={styles.emptyText}>还没有收藏的联系人</Text>
+                <View className={styles.emptyBtn} onClick={handleGoMatching}>
+                  <Text className={styles.emptyBtnText}>去认识朋友</Text>
                 </View>
               </View>
             )}

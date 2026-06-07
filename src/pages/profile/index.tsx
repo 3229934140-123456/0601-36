@@ -45,7 +45,7 @@ const ProfilePage: React.FC = () => {
         Taro.navigateTo({ url: '/pages/activity-history/index?tab=moments' });
         break;
       case 'favorites':
-        Taro.navigateTo({ url: '/pages/activity-history/index?tab=cards' });
+        Taro.navigateTo({ url: '/pages/activity-history/index?tab=favorites' });
         break;
       case 'visibility':
         Taro.navigateTo({ url: '/pages/settings/index' });
