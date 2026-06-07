@@ -1,0 +1,164 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: 120rpx;
+}
+
+.cover {
+  width: 100%;
+  height: 400rpx;
+  display: block;
+}
+
+.content {
+  padding: $spacing-lg;
+  background: $color-bg-card;
+  margin-top: -20rpx;
+  border-radius: $radius-xl $radius-xl 0 0;
+  position: relative;
+}
+
+.title {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  line-height: 1.4;
+  margin-bottom: $spacing-md;
+}
+
+.infoRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-sm;
+}
+
+.infoIcon {
+  font-size: 28rpx;
+  margin-right: $spacing-sm;
+  width: 40rpx;
+  text-align: center;
+}
+
+.infoText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  flex: 1;
+}
+
+.hostRow {
+  display: flex;
+  align-items: center;
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-divider;
+}
+
+.hostInfo {
+  flex: 1;
+  margin-left: $spacing-md;
+}
+
+.hostName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.hostLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: 4rpx;
+}
+
+.section {
+  margin: $spacing-md;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-lg;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+}
+
+.desc {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  line-height: 1.7;
+}
+
+.tagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.tagItem {
+  padding: 10rpx 24rpx;
+  background: $color-tag-bg;
+  border-radius: $radius-button;
+}
+
+.tagText {
+  font-size: $font-size-sm;
+  color: $color-primary;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: $color-bg-card;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc(env(safe-area-inset-bottom) + #{$spacing-md});
+  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.06);
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.shareBtn {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: $radius-lg;
+  background: $color-bg-page;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  flex-shrink: 0;
+}
+
+.joinBtn {
+  flex: 1;
+  height: 88rpx;
+  background: $gradient-primary;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 16rpx rgba(255, 107, 107, 0.3);
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.joinedBtn {
+  background: $color-success;
+  box-shadow: 0 4rpx 16rpx rgba(0, 180, 42, 0.3);
+}
+
+.joinBtnText {
+  font-size: $font-size-lg;
+  color: $color-text-white;
+  font-weight: $font-weight-semibold;
+}

@@ -1,0 +1,96 @@
+@use '@/styles/variables.scss' as *;
+
+.card {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-card;
+  margin-bottom: $spacing-md;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.99);
+  }
+}
+
+.coverWrapper {
+  position: relative;
+  width: 100%;
+  height: 280rpx;
+}
+
+.cover {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.statusBadge {
+  position: absolute;
+  top: $spacing-md;
+  right: $spacing-md;
+  padding: 8rpx 20rpx;
+  border-radius: $radius-round;
+}
+
+.status-upcoming {
+  background: rgba(22, 93, 255, 0.9);
+}
+
+.status-ongoing {
+  background: rgba(0, 180, 42, 0.9);
+}
+
+.status-ended {
+  background: rgba(134, 144, 156, 0.9);
+}
+
+.statusText {
+  font-size: $font-size-xs;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+}
+
+.content {
+  padding: $spacing-lg;
+}
+
+.title {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: $spacing-md;
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-sm;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.metaLabel {
+  font-size: $font-size-sm;
+  margin-right: $spacing-xs;
+}
+
+.metaText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.tagRow {
+  margin-top: $spacing-md;
+}

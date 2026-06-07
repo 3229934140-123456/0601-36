@@ -1,0 +1,249 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: $color-bg-page;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md $page-padding;
+  background: $color-bg-card;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.backBtn {
+  padding: $spacing-sm;
+  margin-right: $spacing-sm;
+  font-size: 32rpx;
+}
+
+.userInfo {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.userName {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-left: $spacing-md;
+}
+
+.moreBtn {
+  padding: $spacing-sm;
+  font-size: 32rpx;
+  color: $color-text-tertiary;
+}
+
+.messageList {
+  flex: 1;
+  padding: $spacing-md $page-padding;
+  overflow-y: auto;
+}
+
+.messageItem {
+  display: flex;
+  margin-bottom: $spacing-lg;
+  align-items: flex-end;
+}
+
+.messageSelf {
+  flex-direction: row-reverse;
+}
+
+.messageAvatar {
+  flex-shrink: 0;
+}
+
+.messageBubble {
+  max-width: 70%;
+  margin: 0 $spacing-md;
+  padding: $spacing-md $spacing-lg;
+  border-radius: $radius-lg;
+  background: $color-bg-card;
+  box-shadow: $shadow-card;
+  position: relative;
+}
+
+.messageSelf .messageBubble {
+  background: $color-primary;
+  color: $color-text-white;
+}
+
+.messageText {
+  font-size: $font-size-md;
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+.messageTime {
+  text-align: center;
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin: $spacing-lg 0;
+}
+
+.cardMessage {
+  width: 400rpx;
+  padding: $spacing-lg;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  margin: 0 $spacing-md;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-md;
+}
+
+.cardUserInfo {
+  flex: 1;
+  margin-left: $spacing-md;
+  min-width: 0;
+}
+
+.cardName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: 4rpx;
+}
+
+.cardPosition {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.cardTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  margin-bottom: $spacing-md;
+}
+
+.cardTag {
+  font-size: 20rpx;
+  color: $color-primary;
+  background: $color-tag-bg;
+  padding: 4rpx 12rpx;
+  border-radius: $radius-xs;
+}
+
+.cardBio {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.5;
+  margin-bottom: $spacing-md;
+}
+
+.cardAction {
+  width: 100%;
+  padding: $spacing-sm 0;
+  background: $gradient-primary;
+  border-radius: $radius-md;
+  text-align: center;
+  font-size: $font-size-sm;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+}
+
+.inputBar {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc(env(safe-area-inset-bottom) + #{$spacing-md});
+  background: $color-bg-card;
+  border-top: 1rpx solid $color-divider;
+  gap: $spacing-sm;
+}
+
+.inputWrapper {
+  flex: 1;
+  height: 72rpx;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  padding: 0 $spacing-md;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  flex: 1;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  background: transparent;
+}
+
+.actionBtn {
+  width: 72rpx;
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+}
+
+.sendBtn {
+  padding: 0 $spacing-lg;
+  height: 72rpx;
+  background: $gradient-primary;
+  border-radius: $radius-md;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:active {
+    opacity: 0.9;
+  }
+}
+
+.sendBtnText {
+  font-size: $font-size-sm;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+}
+
+.toolbar {
+  display: flex;
+  padding: $spacing-sm $page-padding;
+  background: $color-bg-card;
+  border-top: 1rpx solid $color-divider;
+  gap: $spacing-lg;
+}
+
+.toolItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $spacing-sm;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.7;
+  }
+}
+
+.toolIcon {
+  width: 80rpx;
+  height: 80rpx;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  margin-bottom: 8rpx;
+}
+
+.toolLabel {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}

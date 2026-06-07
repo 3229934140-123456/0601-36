@@ -1,0 +1,229 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md $page-padding;
+  background: $color-bg-card;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.headerTitle {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+}
+
+.publishBtn {
+  padding: 12rpx 28rpx;
+  background: $gradient-primary;
+  border-radius: $radius-button;
+  box-shadow: 0 4rpx 12rpx rgba(255, 107, 107, 0.3);
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.96);
+  }
+}
+
+.publishBtnText {
+  font-size: $font-size-sm;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+}
+
+.filterTabs {
+  display: flex;
+  padding: $spacing-sm $page-padding;
+  background: $color-bg-card;
+  gap: $spacing-lg;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.filterTab {
+  font-size: $font-size-md;
+  color: $color-text-tertiary;
+  padding: $spacing-sm 0;
+  position: relative;
+  transition: all $transition-fast;
+}
+
+.filterTabActive {
+  color: $color-text-primary;
+  font-weight: $font-weight-semibold;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40rpx;
+    height: 6rpx;
+    background: $color-primary;
+    border-radius: 3rpx;
+  }
+}
+
+.momentList {
+  padding: $spacing-md $page-padding;
+}
+
+.momentCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+}
+
+.momentHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-md;
+}
+
+.momentUserInfo {
+  flex: 1;
+  margin-left: $spacing-md;
+}
+
+.momentUserName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: 4rpx;
+}
+
+.momentTime {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.activityTag {
+  font-size: $font-size-xs;
+  color: $color-primary;
+  background: $color-tag-bg;
+  padding: 4rpx 12rpx;
+  border-radius: $radius-xs;
+  margin-left: $spacing-sm;
+}
+
+.moreBtn {
+  padding: $spacing-sm;
+  font-size: 32rpx;
+  color: $color-text-tertiary;
+}
+
+.momentContent {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  line-height: 1.6;
+  margin-bottom: $spacing-md;
+}
+
+.momentImages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.singleImage {
+  width: 100%;
+  max-height: 480rpx;
+}
+
+.multiImage {
+  width: calc((100% - 32rpx) / 3);
+  aspect-ratio: 1;
+}
+
+.momentImage {
+  width: 100%;
+  height: 100%;
+  border-radius: $radius-md;
+  display: block;
+  object-fit: cover;
+}
+
+.momentFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-divider;
+}
+
+.actionGroup {
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
+}
+
+.actionItem {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: $spacing-xs 0;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.7;
+  }
+}
+
+.actionIcon {
+  font-size: 28rpx;
+}
+
+.actionText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.actionActive {
+  color: $color-primary;
+}
+
+.emptyState {
+  padding: $spacing-xl * 3 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.emptyIcon {
+  font-size: 120rpx;
+  opacity: 0.3;
+  margin-bottom: $spacing-md;
+}
+
+.emptyText {
+  font-size: $font-size-md;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-lg;
+}
+
+.emptyBtn {
+  padding: 16rpx 48rpx;
+  background: $color-primary;
+  border-radius: $radius-button;
+
+  &:active {
+    opacity: 0.9;
+  }
+}
+
+.emptyBtnText {
+  font-size: $font-size-md;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+}

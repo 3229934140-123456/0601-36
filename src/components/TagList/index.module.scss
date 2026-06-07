@@ -1,0 +1,25 @@
+@use '@/styles/variables.scss' as *;
+
+.tagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.tag-small {
+  padding: 6rpx 16rpx;
+  background: $color-tag-bg;
+  border-radius: $radius-sm;
+}
+
+.tag-medium {
+  padding: 10rpx 20rpx;
+  background: $color-tag-bg;
+  border-radius: $radius-md;
+}
+
+.tagText {
+  font-size: $font-size-xs;
+  color: $color-tag-text;
+  line-height: 1.3;
+}

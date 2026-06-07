@@ -1,0 +1,48 @@
+@use '@/styles/variables.scss' as *;
+
+.avatarWrapper {
+  position: relative;
+  display: inline-block;
+  border-radius: $radius-round;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.small {
+  width: 56rpx;
+  height: 56rpx;
+}
+
+.medium {
+  width: 80rpx;
+  height: 80rpx;
+}
+
+.large {
+  width: 120rpx;
+  height: 120rpx;
+}
+
+.xlarge {
+  width: 160rpx;
+  height: 160rpx;
+}
+
+.avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: $radius-round;
+  display: block;
+  background: $color-bg-hover;
+}
+
+.onlineDot {
+  position: absolute;
+  right: 4rpx;
+  bottom: 4rpx;
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: $radius-round;
+  background: $color-success;
+  border: 3rpx solid #fff;
+}

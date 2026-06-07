@@ -1,0 +1,237 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+}
+
+.header {
+  background: $color-bg-card;
+  padding: $spacing-lg $page-padding;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.headerTitle {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+}
+
+.tabs {
+  display: flex;
+  background: $color-bg-card;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.tabItem {
+  flex: 1;
+  text-align: center;
+  padding: $spacing-md 0;
+  position: relative;
+}
+
+.tabText {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  position: relative;
+  display: inline-block;
+}
+
+.tabTextActive {
+  color: $color-text-primary;
+  font-weight: $font-weight-semibold;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -14rpx;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40rpx;
+    height: 6rpx;
+    background: $color-primary;
+    border-radius: 3rpx;
+  }
+}
+
+.badge {
+  position: absolute;
+  top: -4rpx;
+  right: -20rpx;
+  min-width: 28rpx;
+  height: 28rpx;
+  line-height: 28rpx;
+  padding: 0 8rpx;
+  background: $color-error;
+  color: #fff;
+  font-size: 20rpx;
+  border-radius: $radius-round;
+  text-align: center;
+}
+
+.section {
+  margin: $spacing-md $page-padding;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  overflow: hidden;
+}
+
+.sectionTitle {
+  padding: $spacing-md $spacing-lg;
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  font-weight: $font-weight-medium;
+}
+
+.announcementItem {
+  display: flex;
+  align-items: flex-start;
+  padding: $spacing-md $spacing-lg;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:active {
+    background: $color-bg-hover;
+  }
+}
+
+.announcementIcon {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: $radius-md;
+  background: $gradient-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  margin-right: $spacing-md;
+  flex-shrink: 0;
+}
+
+.announcementHost {
+  background: $gradient-secondary;
+}
+
+.announcementContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.announcementTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin-bottom: 6rpx;
+  @include text-ellipsis;
+}
+
+.announcementDesc {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  @include text-ellipsis-multi(2);
+}
+
+.announcementTime {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: 6rpx;
+}
+
+.conversationItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md $spacing-lg;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:active {
+    background: $color-bg-hover;
+  }
+}
+
+.conversationAvatar {
+  position: relative;
+  margin-right: $spacing-md;
+  flex-shrink: 0;
+}
+
+.unreadBadge {
+  position: absolute;
+  top: -6rpx;
+  right: -6rpx;
+  min-width: 32rpx;
+  height: 32rpx;
+  line-height: 32rpx;
+  padding: 0 10rpx;
+  background: $color-error;
+  color: #fff;
+  font-size: 20rpx;
+  border-radius: $radius-round;
+  text-align: center;
+  z-index: 10;
+}
+
+.conversationInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.conversationTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8rpx;
+}
+
+.conversationName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  @include text-ellipsis;
+  flex: 1;
+}
+
+.conversationTime {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  flex-shrink: 0;
+  margin-left: $spacing-sm;
+}
+
+.conversationBottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.conversationLastMsg {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  @include text-ellipsis;
+  flex: 1;
+}
+
+.emptyState {
+  padding: $spacing-xl * 3 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.emptyIcon {
+  font-size: 120rpx;
+  opacity: 0.3;
+  margin-bottom: $spacing-md;
+}
+
+.emptyText {
+  font-size: $font-size-md;
+  color: $color-text-tertiary;
+}
