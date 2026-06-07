@@ -6,12 +6,14 @@ import { ChatMessage, User } from '@/types';
 import { mockChatMessages } from '@/data/messages';
 import { mockParticipants } from '@/data/users';
 import { useUserStore } from '@/store/useUserStore';
+import { useActivityStore } from '@/store/useActivityStore';
 import UserAvatar from '@/components/UserAvatar';
 import styles from './index.module.scss';
 
 const ChatDetailPage: React.FC = () => {
   const router = useRouter();
   const { currentUser, toggleFavorite, isFavorite } = useUserStore();
+  const { addExchangedCard } = useActivityStore();
   const userId = router.params.userId || '1';
   const userName = router.params.userName || '用户';
 
@@ -90,6 +92,12 @@ const ChatDetailPage: React.FC = () => {
 
     setMessages((prev) => [...prev, cardMsg]);
     setShowToolbar(false);
+    addExchangedCard(userId);
+
+    Taro.showToast({
+      title: '名片已发送',
+      icon: 'success'
+    });
 
     setTimeout(() => {
       const reply: ChatMessage = {
@@ -102,7 +110,7 @@ const ChatDetailPage: React.FC = () => {
       };
       setMessages((prev) => [...prev, reply]);
     }, 1500);
-  }, [currentUser, userId]);
+  }, [currentUser, userId, addExchangedCard]);
 
   const handleToggleFavorite = useCallback(() => {
     toggleFavorite(userId);

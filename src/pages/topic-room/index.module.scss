@@ -1,0 +1,290 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: $color-bg-page;
+}
+
+.header {
+  background: $color-bg-card;
+  padding: $spacing-md $page-padding;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.activityTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-sm;
+}
+
+.tabBar {
+  display: flex;
+  gap: $spacing-lg;
+}
+
+.tabItem {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  padding-bottom: 8rpx;
+  border-bottom: 4rpx solid transparent;
+  transition: all $transition-fast;
+}
+
+.tabItemActive {
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+  border-bottom-color: $color-primary;
+}
+
+.messageList {
+  flex: 1;
+  padding: $spacing-md $page-padding;
+  overflow-y: auto;
+}
+
+.messageItem {
+  display: flex;
+  margin-bottom: $spacing-lg;
+  align-items: flex-start;
+}
+
+.messageSelf {
+  flex-direction: row-reverse;
+}
+
+.messageAvatar {
+  flex-shrink: 0;
+  margin-top: 4rpx;
+}
+
+.messageBubble {
+  max-width: 75%;
+  margin: 0 $spacing-md;
+  padding: $spacing-md $spacing-lg;
+  border-radius: $radius-lg;
+  background: $color-bg-card;
+  box-shadow: $shadow-card;
+}
+
+.messageSelf .messageBubble {
+  background: $color-primary;
+  color: $color-text-white;
+}
+
+.messageHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8rpx;
+  gap: $spacing-sm;
+}
+
+.messageName {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.messageSelf .messageName {
+  color: $color-text-white;
+}
+
+.anonymousBadge {
+  font-size: 20rpx;
+  color: $color-primary;
+  background: $color-tag-bg;
+  padding: 2rpx 12rpx;
+  border-radius: $radius-round;
+}
+
+.messageSelf .anonymousBadge {
+  background: rgba(255, 255, 255, 0.3);
+  color: $color-text-white;
+}
+
+.messageContent {
+  font-size: $font-size-md;
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+.messageTime {
+  text-align: center;
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin: $spacing-lg 0;
+}
+
+.questionCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-md;
+  margin-bottom: $spacing-md;
+}
+
+.questionHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-sm;
+}
+
+.questionBadge {
+  font-size: 20rpx;
+  color: $color-primary;
+  background: $color-tag-bg;
+  padding: 4rpx 16rpx;
+  border-radius: $radius-round;
+  font-weight: $font-weight-medium;
+}
+
+.questionTime {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-left: auto;
+}
+
+.questionContent {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  line-height: 1.6;
+  margin-bottom: $spacing-md;
+}
+
+.questionFooter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.likeBtn {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 8rpx 16rpx;
+  border-radius: $radius-button;
+  background: $color-bg-page;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.likeBtnActive {
+  background: $color-tag-bg;
+}
+
+.likeIcon {
+  font-size: 28rpx;
+}
+
+.likeCount {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.likeCountActive {
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.inputBar {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc(env(safe-area-inset-bottom) + #{$spacing-md});
+  background: $color-bg-card;
+  border-top: 1rpx solid $color-divider;
+  gap: $spacing-sm;
+}
+
+.anonymousToggle {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: $spacing-sm $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-button;
+  transition: all $transition-fast;
+}
+
+.anonymousToggleActive {
+  background: $color-tag-bg;
+}
+
+.anonymousText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.anonymousTextActive {
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.inputWrapper {
+  flex: 1;
+  height: 72rpx;
+  background: $color-bg-page;
+  border-radius: $radius-button;
+  padding: 0 $spacing-md;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  flex: 1;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  background: transparent;
+}
+
+.sendBtn {
+  padding: 0 $spacing-lg;
+  height: 72rpx;
+  background: $gradient-primary;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:active {
+    opacity: 0.9;
+  }
+}
+
+.sendBtnDisabled {
+  background: $color-bg-page;
+
+  .sendBtnText {
+    color: $color-text-tertiary;
+  }
+}
+
+.sendBtnText {
+  font-size: $font-size-sm;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-xl * 2 0;
+}
+
+.emptyIcon {
+  font-size: 80rpx;
+  margin-bottom: $spacing-md;
+}
+
+.emptyText {
+  font-size: $font-size-md;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-md;
+}

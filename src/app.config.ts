@@ -9,7 +9,10 @@ export default defineAppConfig({
     'pages/activity-detail/index',
     'pages/chat-detail/index',
     'pages/edit-profile/index',
-    'pages/settings/index'
+    'pages/settings/index',
+    'pages/topic-room/index',
+    'pages/activity-review/index',
+    'pages/activity-history/index'
   ],
   window: {
     backgroundTextStyle: 'light',

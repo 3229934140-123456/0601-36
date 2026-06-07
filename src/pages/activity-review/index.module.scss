@@ -1,0 +1,295 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: calc(env(safe-area-inset-bottom) + #{$spacing-lg});
+}
+
+.header {
+  background: $color-bg-card;
+  padding: $spacing-lg $page-padding;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.activityTitle {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-sm;
+}
+
+.activityMeta {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  flex-wrap: wrap;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+}
+
+.section {
+  margin: $spacing-md;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-lg;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.sectionCount {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  font-weight: normal;
+}
+
+.sectionMore {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.photoGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+}
+
+.photoItem {
+  width: calc((100% - 16rpx) / 3);
+  aspect-ratio: 1;
+  border-radius: $radius-sm;
+  overflow: hidden;
+}
+
+.photoImg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.photoMore {
+  width: calc((100% - 16rpx) / 3);
+  aspect-ratio: 1;
+  border-radius: $radius-sm;
+  background: $color-bg-page;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4rpx;
+}
+
+.photoMoreIcon {
+  font-size: 36rpx;
+}
+
+.photoMoreText {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.momentItem {
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:first-child {
+    padding-top: 0;
+  }
+
+  &:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+}
+
+.momentHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-sm;
+}
+
+.momentUserInfo {
+  flex: 1;
+  margin-left: $spacing-sm;
+  min-width: 0;
+}
+
+.momentName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.momentTime {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: 4rpx;
+}
+
+.momentContent {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  line-height: 1.6;
+  margin-bottom: $spacing-sm;
+}
+
+.momentImages {
+  display: flex;
+  gap: 8rpx;
+  margin-bottom: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.momentImg {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: $radius-sm;
+  display: block;
+  object-fit: cover;
+}
+
+.momentFooter {
+  display: flex;
+  gap: $spacing-lg;
+}
+
+.momentAction {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.actionIcon {
+  font-size: 24rpx;
+}
+
+.peopleGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+}
+
+.personItem {
+  width: calc((100% - 48rpx) / 4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.personAvatar {
+  position: relative;
+}
+
+.avatarImg {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: $radius-round;
+  display: block;
+}
+
+.favBadge {
+  position: absolute;
+  right: -8rpx;
+  bottom: -8rpx;
+  width: 36rpx;
+  height: 36rpx;
+  background: $color-primary;
+  border-radius: $radius-round;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18rpx;
+  border: 3rpx solid #fff;
+}
+
+.personName {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  @include text-ellipsis;
+  max-width: 100%;
+  text-align: center;
+}
+
+.questionItem {
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:first-child {
+    padding-top: 0;
+  }
+
+  &:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+}
+
+.questionContent {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  line-height: 1.5;
+  margin-bottom: $spacing-sm;
+}
+
+.questionFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.questionTime {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.questionLikes {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  font-size: $font-size-sm;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-lg 0;
+}
+
+.emptyIcon {
+  font-size: 60rpx;
+  margin-bottom: $spacing-sm;
+}
+
+.emptyText {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}

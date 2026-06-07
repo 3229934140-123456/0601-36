@@ -162,3 +162,177 @@
   color: $color-text-white;
   font-weight: $font-weight-semibold;
 }
+
+.quickActions {
+  display: flex;
+  margin: $spacing-md;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-md 0;
+}
+
+.actionItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.7;
+  }
+}
+
+.actionIcon {
+  width: 80rpx;
+  height: 80rpx;
+  background: $color-tag-bg;
+  border-radius: $radius-lg;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+}
+
+.actionLabel {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.scheduleSection {
+  margin: $spacing-md;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-lg;
+}
+
+.scheduleHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.scheduleTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.currentBadge {
+  font-size: $font-size-xs;
+  color: $color-primary;
+  background: $color-tag-bg;
+  padding: 4rpx 16rpx;
+  border-radius: $radius-round;
+  font-weight: $font-weight-medium;
+}
+
+.scheduleList {
+  position: relative;
+}
+
+.timeline {
+  position: absolute;
+  left: 24rpx;
+  top: 12rpx;
+  bottom: 12rpx;
+  width: 2rpx;
+  background: $color-divider;
+}
+
+.timelineItem {
+  display: flex;
+  padding-bottom: $spacing-lg;
+
+  &:last-child {
+    padding-bottom: 0;
+  }
+}
+
+.timelineDot {
+  width: 50rpx;
+  height: 50rpx;
+  border-radius: $radius-round;
+  background: $color-bg-card;
+  border: 4rpx solid $color-divider;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 20rpx;
+  z-index: 1;
+}
+
+.timelineDotActive {
+  background: $color-primary;
+  border-color: $color-primary;
+  color: #fff;
+}
+
+.timelineDotDone {
+  background: $color-success;
+  border-color: $color-success;
+  color: #fff;
+}
+
+.timelineContent {
+  flex: 1;
+  margin-left: $spacing-md;
+  padding-top: 4rpx;
+}
+
+.timelineTime {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin-bottom: 4rpx;
+  font-family: monospace;
+}
+
+.timelineTitle {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  margin-bottom: 4rpx;
+}
+
+.timelineTitleActive {
+  color: $color-primary;
+  font-weight: $font-weight-semibold;
+}
+
+.timelineDesc {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  line-height: 1.5;
+}
+
+.nextReminder {
+  background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(78, 205, 196, 0.1));
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  margin-bottom: $spacing-md;
+  display: flex;
+  align-items: center;
+}
+
+.reminderIcon {
+  font-size: 32rpx;
+  margin-right: $spacing-sm;
+}
+
+.reminderText {
+  flex: 1;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.reminderBold {
+  color: $color-primary;
+  font-weight: $font-weight-semibold;
+}
+

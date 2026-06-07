@@ -52,31 +52,41 @@ const SquarePage: React.FC = () => {
         } else {
           try {
             const data = JSON.parse(scanResult);
-            activityId = data.activityId || data.id;
+            activityId = data.activityId || data.id || '';
           } catch {
-            activityId = '1';
+            activityId = '';
           }
         }
 
-        const activity = mockActivities.find((a) => a.id === activityId);
-        if (activity) {
-          Taro.navigateTo({
-            url: `/pages/activity-detail/index?id=${activityId}&from=scan`
-          });
-        } else {
-          Taro.showModal({
-            title: '未找到活动',
-            content: '扫描的二维码无效，请确认后重试',
-            showCancel: false
-          });
+        if (activityId) {
+          const activity = mockActivities.find((a) => a.id === activityId);
+          if (activity) {
+            Taro.navigateTo({
+              url: `/pages/activity-detail/index?id=${activityId}&from=scan`
+            });
+            return;
+          }
         }
+
+        Taro.showModal({
+          title: '二维码无效',
+          content: '未找到对应的活动，请确认二维码是否正确',
+          showCancel: false,
+          confirmText: '我知道了'
+        });
       },
       fail: (err) => {
         console.log('[Square] 扫码失败/取消:', err);
-        if (err.errMsg && err.errMsg.includes('cancel')) {
+        const errMsg = err.errMsg || '';
+        if (errMsg.includes('cancel') || errMsg.includes('取消')) {
+          Taro.showToast({
+            title: '已取消扫码',
+            icon: 'none',
+            duration: 1500
+          });
         } else {
           Taro.showToast({
-            title: '扫码失败',
+            title: '扫码失败，请重试',
             icon: 'none'
           });
         }

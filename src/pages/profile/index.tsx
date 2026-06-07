@@ -39,10 +39,22 @@ const ProfilePage: React.FC = () => {
         Taro.navigateTo({ url: '/pages/settings/index' });
         break;
       case 'activities':
-        Taro.switchTab({ url: '/pages/square/index' });
+        Taro.navigateTo({ url: '/pages/activity-history/index?tab=activities' });
         break;
       case 'moments':
-        Taro.switchTab({ url: '/pages/moments/index' });
+        Taro.navigateTo({ url: '/pages/activity-history/index?tab=moments' });
+        break;
+      case 'favorites':
+        Taro.navigateTo({ url: '/pages/activity-history/index?tab=cards' });
+        break;
+      case 'visibility':
+        Taro.navigateTo({ url: '/pages/settings/index' });
+        break;
+      case 'report':
+        Taro.showToast({
+          title: '反馈功能开发中',
+          icon: 'none'
+        });
         break;
       default:
         Taro.showToast({
