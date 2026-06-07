@@ -2,8 +2,6 @@ import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { View, Text, ScrollView, Image } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
 import classnames from 'classnames';
-import { mockMoments } from '@/data/moments';
-import { mockAnonymousQuestions } from '@/data/activities';
 import { mockParticipants } from '@/data/users';
 import { useUserStore } from '@/store/useUserStore';
 import { useActivityStore } from '@/store/useActivityStore';
@@ -25,68 +23,77 @@ const reviewPhotos = [
 const ActivityReviewPage: React.FC = () => {
   const router = useRouter();
   const activityId = router.params.activityId || '1';
-  const { toggleFavorite, isFavorite } = useUserStore();
-  const { topicQuestions } = useActivityStore();
+  const { toggleFavorite, favorites } = useUserStore();
+  const { getActivity, getActivityMoments, getActivityQuestions, topicQuestions } =
+    useActivityStore();
 
-  const [activityTitle, setActivityTitle] = useState('');
-  const [favStates, setFavStates] = useState<Record<string, boolean>>({});
+  const activity = getActivity(activityId);
+
+  const isFav = useCallback(
+    (userId: string) => favorites.includes(userId),
+    [favorites]
+  );
+
+  const reviewPhotos = useMemo(() => {
+    const baseId = parseInt(activityId) * 50 + 200;
+    return Array.from({ length: 9 }, (_, i) => `https://picsum.photos/id/${baseId + i}/400/400`);
+  }, [activityId]);
+
+  const metPeople = useMemo(() => {
+    const start = (parseInt(activityId) - 1) * 2;
+    return mockParticipants.slice(start, start + 8);
+  }, [activityId]);
 
   useEffect(() => {
     console.log('[ActivityReview] 活动回顾页，活动ID:', activityId);
     Taro.setNavigationBarTitle({ title: '活动回顾' });
-    setActivityTitle('2024 创业者交流会');
+  }, [activityId]);
 
-    const states: Record<string, boolean> = {};
-    mockParticipants.forEach((p) => {
-      states[p.id] = isFavorite(p.id);
-    });
-    setFavStates(states);
-  }, [activityId, isFavorite]);
-
-  const displayPhotos = useMemo(() => reviewPhotos.slice(0, 8), []);
+  const displayPhotos = useMemo(() => reviewPhotos.slice(0, 8), [reviewPhotos]);
   const hasMorePhotos = reviewPhotos.length > 8;
 
-  const displayMoments = useMemo(() => mockMoments.slice(0, 3), []);
+  const displayMoments = useMemo(() => {
+    return getActivityMoments(activityId).slice(0, 3);
+  }, [activityId, topicQuestions]);
 
   const hotQuestions = useMemo(() => {
-    const allQuestions = [...mockAnonymousQuestions, ...(topicQuestions[activityId] || [])];
-    return allQuestions
-      .filter((q) => q.status === 'approved')
+    const questions = getActivityQuestions(activityId);
+    return questions
+      .filter((q) => q.isApproved)
       .sort((a, b) => b.likeCount - a.likeCount)
       .slice(0, 3);
   }, [activityId, topicQuestions]);
 
-  const metPeople = useMemo(() => mockParticipants.slice(0, 8), []);
+  const handlePhotoPreview = useCallback(
+    (index: number) => {
+      console.log('[ActivityReview] 预览照片', index);
+      Taro.previewImage({
+        urls: reviewPhotos,
+        current: reviewPhotos[index]
+      });
+    },
+    [reviewPhotos]
+  );
 
-  const handlePhotoPreview = useCallback((index: number) => {
-    console.log('[ActivityReview] 预览照片', index);
-    Taro.previewImage({
-      urls: reviewPhotos,
-      current: reviewPhotos[index]
-    });
-  }, []);
-
-  const handleUserClick = useCallback((userId: string) => {
+  const handleUserClick = useCallback((userId: string, userName?: string) => {
     console.log('[ActivityReview] 查看用户:', userId);
+    const nameParam = userName ? `&userName=${encodeURIComponent(userName)}` : '';
     Taro.navigateTo({
-      url: `/pages/chat-detail/index?userId=${userId}`
+      url: `/pages/chat-detail/index?userId=${userId}${nameParam}`
     });
   }, []);
 
   const handleToggleFav = useCallback(
     (userId: string) => {
       console.log('[ActivityReview] 切换收藏:', userId);
+      const isCurrentlyFav = isFav(userId);
       toggleFavorite(userId);
-      setFavStates((prev) => ({
-        ...prev,
-        [userId]: !prev[userId]
-      }));
       Taro.showToast({
-        title: !favStates[userId] ? '已收藏' : '已取消',
+        title: isCurrentlyFav ? '已取消收藏' : '已收藏',
         icon: 'none'
       });
     },
-    [toggleFavorite, favStates]
+    [toggleFavorite, isFav]
   );
 
   const handleMoreMoments = useCallback(() => {
@@ -108,15 +115,15 @@ const ActivityReviewPage: React.FC = () => {
   return (
     <ScrollView scrollY className={styles.page}>
       <View className={styles.header}>
-        <Text className={styles.activityTitle}>{activityTitle}</Text>
+        <Text className={styles.activityTitle}>{activity?.title || '活动回顾'}</Text>
         <View className={styles.activityMeta}>
           <View className={styles.metaItem}>
             <Text>📍</Text>
-            <Text>北京 · 中关村创新中心</Text>
+            <Text>{activity?.location || '活动地点'}</Text>
           </View>
           <View className={styles.metaItem}>
             <Text>👥</Text>
-            <Text>{mockParticipants.length}人参与</Text>
+            <Text>{activity?.participantCount || 0}人参与</Text>
           </View>
         </View>
       </View>
@@ -156,7 +163,9 @@ const ActivityReviewPage: React.FC = () => {
         <View className={styles.sectionHeader}>
           <Text className={styles.sectionTitle}>
             💬 现场动态
-            <Text className={styles.sectionCount}>{mockMoments.length}条</Text>
+            <Text className={styles.sectionCount}>
+              {getActivityMoments(activityId).length}条
+            </Text>
           </Text>
           <Text className={styles.sectionMore} onClick={handleMoreMoments}>
             更多 ›
@@ -169,17 +178,19 @@ const ActivityReviewPage: React.FC = () => {
             onClick={() => handleMomentClick(moment.id)}
           >
             <View className={styles.momentHeader}>
-              <View onClick={(e) => {
-                e.stopPropagation?.();
-                handleUserClick(moment.userId);
-              }}>
+              <View
+                onClick={(e) => {
+                  e.stopPropagation?.();
+                  handleUserClick(moment.userId, moment.userName);
+                }}
+              >
                 <UserAvatar src={moment.userAvatar} size="medium" />
               </View>
               <View
                 className={styles.momentUserInfo}
                 onClick={(e) => {
                   e.stopPropagation?.();
-                  handleUserClick(moment.userId);
+                  handleUserClick(moment.userId, moment.userName);
                 }}
               >
                 <Text className={styles.momentName}>{moment.userName}</Text>
@@ -247,47 +258,48 @@ const ActivityReviewPage: React.FC = () => {
           </Text>
         </View>
         <View className={styles.peopleGrid}>
-          {metPeople.map((person) => (
-            <View key={person.id} className={styles.personItem}>
-              <View
-                className={styles.personAvatar}
-                onClick={() => handleUserClick(person.id)}
-              >
-                <Image className={styles.avatarImg} src={person.avatar} mode="aspectFill" />
-                {favStates[person.id] && (
+          {metPeople.map((person) => {
+            const fav = isFav(person.id);
+            return (
+              <View key={person.id} className={styles.personItem}>
+                <View
+                  className={styles.personAvatar}
+                  onClick={() => handleUserClick(person.id, person.name)}
+                >
+                  <Image className={styles.avatarImg} src={person.avatar} mode="aspectFill" />
+                  {fav && (
+                    <View
+                      className={styles.favBadge}
+                      onClick={(e) => {
+                        e.stopPropagation?.();
+                        handleToggleFav(person.id);
+                      }}
+                    >
+                      <Text>⭐</Text>
+                    </View>
+                  )}
+                </View>
+                <Text
+                  className={styles.personName}
+                  onClick={() => handleUserClick(person.id, person.name)}
+                >
+                  {person.name}
+                </Text>
+                {!fav && (
                   <View
-                    className={styles.favBadge}
-                    onClick={(e) => {
-                      e.stopPropagation?.();
-                      handleToggleFav(person.id);
-                    }}
+                    className={classnames({
+                      [styles.favoriteBtn]: true,
+                      [styles.favoriteBtnActive]: fav
+                    })}
+                    onClick={() => handleToggleFav(person.id)}
+                    style={{ fontSize: '12rpx' }}
                   >
-                    <Text>⭐</Text>
+                    <Text>+ 收藏</Text>
                   </View>
                 )}
               </View>
-              <Text
-                className={styles.personName}
-                onClick={() => handleUserClick(person.id)}
-              >
-                {person.name}
-              </Text>
-              {!favStates[person.id] && (
-                <View
-                  className={classnames(
-                    {
-                      [styles.favoriteBtn]: true,
-                      [styles.favoriteBtnActive]: favStates[person.id]
-                    }
-                  )}
-                  onClick={() => handleToggleFav(person.id)}
-                  style={{ fontSize: '12rpx' }}
-                >
-                  <Text>+ 收藏</Text>
-                </View>
-              )}
-            </View>
-          ))}
+            );
+          })}
         </View>
       </View>
     </ScrollView>

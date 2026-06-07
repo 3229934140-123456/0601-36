@@ -1,11 +1,12 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { View, Text, Image, ScrollView, Input, Textarea } from '@tarojs/components';
-import Taro from '@tarojs/taro';
+import Taro, { useRouter, useDidShow } from '@tarojs/taro';
 import classnames from 'classnames';
 import { Moment, Comment } from '@/types';
 import { mockMoments } from '@/data/moments';
 import { mockComments } from '@/data/moments';
 import { useUserStore } from '@/store/useUserStore';
+import { useActivityStore } from '@/store/useActivityStore';
 import UserAvatar from '@/components/UserAvatar';
 import styles from './index.module.scss';
 
@@ -16,7 +17,10 @@ const filterTabs = [
 ];
 
 const MomentsPage: React.FC = () => {
+  const router = useRouter();
   const { currentUser } = useUserStore();
+  const { addMoment, addComment, getActivityMoments, targetMomentId, setTargetMoment } =
+    useActivityStore();
   const [activeFilter, setActiveFilter] = useState('all');
   const [moments, setMoments] = useState<Moment[]>(mockMoments);
   const [likedMoments, setLikedMoments] = useState<string[]>(
@@ -42,7 +46,26 @@ const MomentsPage: React.FC = () => {
     });
     setCommentsMap(map);
     console.log('[Moments] 页面加载完成，动态数量:', moments.length);
-  }, [moments.length]);
+  }, []);
+
+  useDidShow(() => {
+    if (targetMomentId) {
+      console.log('[Moments] 定位到动态:', targetMomentId);
+      const targetId = targetMomentId;
+      setTargetMoment(null);
+
+      setTimeout(() => {
+        const idx = moments.findIndex((m) => m.id === targetId);
+        if (idx >= 0 && scrollRef.current) {
+          scrollRef.current.scrollToOffset?.({
+            offset: idx * 320,
+            animated: true
+          });
+          setShowComments((prev) => ({ ...prev, [targetId]: true }));
+        }
+      }, 400);
+    }
+  });
 
   const handlePublishClick = useCallback(() => {
     console.log('[Moments] 打开发布');
@@ -117,6 +140,7 @@ const MomentsPage: React.FC = () => {
 
     setMoments((prev) => [newMoment, ...prev]);
     setCommentsMap((prev) => ({ ...prev, [newMoment.id]: [] }));
+    addMoment('1', newMoment);
     setShowPublish(false);
     setPublishContent('');
     setPublishImages([]);
@@ -129,7 +153,7 @@ const MomentsPage: React.FC = () => {
     setTimeout(() => {
       scrollRef.current?.scrollToOffset?.({ offset: 0, animated: true });
     }, 300);
-  }, [publishContent, publishImages, publishType, currentUser]);
+  }, [publishContent, publishImages, publishType, currentUser, addMoment]);
 
   const handleLike = useCallback(
     (momentId: string) => {
@@ -184,12 +208,14 @@ const MomentsPage: React.FC = () => {
       )
     );
 
+    addComment('1', commentMomentId, newComment);
+
     setCommentText('');
     Taro.showToast({
       title: '评论成功',
       icon: 'success'
     });
-  }, [commentMomentId, commentText, currentUser]);
+  }, [commentMomentId, commentText, currentUser, addComment]);
 
   const handleMore = useCallback((momentId: string) => {
     console.log('[Moments] 更多操作:', momentId);

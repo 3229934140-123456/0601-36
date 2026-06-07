@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { Activity, Moment, Comment, AnonymousQuestion, ChatMessage } from '@/types';
-import { mockActivities } from '@/data/activities';
+import { mockActivities, mockAnonymousQuestions } from '@/data/activities';
+import { mockMoments } from '@/data/moments';
 
 interface ScheduleItem {
   id: string;
@@ -37,7 +38,13 @@ interface ActivityState {
 
   likedQuestions: Record<string, string[]>;
 
+  targetMomentId: string | null;
+  setTargetMoment: (momentId: string | null) => void;
+
   getSchedule: (activityId: string) => ScheduleItem[];
+  getActivity: (activityId: string) => Activity | undefined;
+  getActivityMoments: (activityId: string) => Moment[];
+  getActivityQuestions: (activityId: string) => AnonymousQuestion[];
 }
 
 const mockSchedules: Record<string, ScheduleItem[]> = {
@@ -105,6 +112,10 @@ const mockSchedules: Record<string, ScheduleItem[]> = {
 
 const initJoined = mockActivities.filter((a) => a.isJoined).map((a) => a.id);
 
+const initTopicQuestions: Record<string, AnonymousQuestion[]> = {
+  '1': mockAnonymousQuestions
+};
+
 export const useActivityStore = create<ActivityState>((set, get) => ({
   joinedActivities: initJoined,
 
@@ -145,7 +156,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
 
   hasExchangedCard: (userId) => get().exchangedCards.includes(userId),
 
-  topicQuestions: {},
+  topicQuestions: initTopicQuestions,
   addTopicQuestion: (activityId, question) =>
     set((state) => ({
       topicQuestions: {
@@ -159,6 +170,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
     set((state) => {
       const liked = state.likedQuestions[activityId] || [];
       const isLiked = liked.includes(questionId);
+      const currentQuestions = state.topicQuestions[activityId] || [];
       return {
         likedQuestions: {
           ...state.likedQuestions,
@@ -168,7 +180,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
         },
         topicQuestions: {
           ...state.topicQuestions,
-          [activityId]: (state.topicQuestions[activityId] || []).map((q) =>
+          [activityId]: currentQuestions.map((q) =>
             q.id === questionId
               ? { ...q, likeCount: isLiked ? q.likeCount - 1 : q.likeCount + 1 }
               : q
@@ -176,6 +188,10 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
         }
       };
     }),
+
+  getQuestions: (activityId) => {
+    return get().topicQuestions[activityId] || [];
+  },
 
   isQuestionLiked: (activityId, questionId) => {
     const liked = get().likedQuestions[activityId] || [];
@@ -191,5 +207,21 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       }
     })),
 
-  getSchedule: (activityId) => mockSchedules[activityId] || mockSchedules['1'] || []
+  targetMomentId: null,
+  setTargetMoment: (momentId) => set({ targetMomentId: momentId }),
+
+  getSchedule: (activityId) => mockSchedules[activityId] || mockSchedules['1'] || [],
+
+  getActivity: (activityId) => mockActivities.find((a) => a.id === activityId),
+
+  getActivityMoments: (activityId) => {
+    const state = get();
+    const myMoments = state.myMoments[activityId] || [];
+    const activityMockMoments = mockMoments.filter((m) => m.activityId === activityId);
+    return [...myMoments, ...activityMockMoments];
+  },
+
+  getActivityQuestions: (activityId) => {
+    return get().topicQuestions[activityId] || [];
+  }
 }));

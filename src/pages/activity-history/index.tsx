@@ -21,7 +21,14 @@ const ActivityHistoryPage: React.FC = () => {
   const router = useRouter();
   const initialTab = router.params.tab || 'activities';
   const { currentUser } = useUserStore();
-  const { joinedActivities, myMoments, exchangedCards, getSchedule } = useActivityStore();
+  const {
+    joinedActivities,
+    myMoments,
+    myComments,
+    exchangedCards,
+    getSchedule,
+    setTargetMoment
+  } = useActivityStore();
 
   const [activeTab, setActiveTab] = useState(initialTab);
 
@@ -41,38 +48,44 @@ const ActivityHistoryPage: React.FC = () => {
   }, [joinedActivities]);
 
   const myMomentList = useMemo(() => {
-    const moments = myMoments['1'] || [];
-    const allUserMoments = mockMoments.filter((m) => m.userId === currentUser.id);
-    return [...moments, ...allUserMoments].slice(0, 10);
+    const allMyMoments: Moment[] = [];
+    Object.values(myMoments).forEach((list) => {
+      allMyMoments.push(...list);
+    });
+    const mockUserMoments = mockMoments.filter((m) => m.userId === currentUser.id);
+    return [...allMyMoments, ...mockUserMoments].slice(0, 20);
   }, [myMoments, currentUser.id]);
 
   const myCommentList = useMemo(() => {
-    return [
-      {
-        id: 'c1',
-        momentId: '1',
-        momentTitle: mockMoments[0].content.slice(0, 30) + '...',
-        content: mockComments[0].content,
-        activityTitle: '2024 创业者交流会',
-        createdAt: '今天 14:30'
-      },
-      {
-        id: 'c2',
-        momentId: '2',
-        momentTitle: mockMoments[1]?.content?.slice?.(0, 30) + '...' || '分享精彩瞬间',
-        content: mockComments[1]?.content || '太棒了！',
-        activityTitle: '2024 创业者交流会',
-        createdAt: '昨天 16:20'
-      }
-    ];
-  }, []);
+    const comments: Array<{
+      id: string;
+      momentId: string;
+      momentTitle: string;
+      content: string;
+      activityTitle: string;
+      createdAt: string;
+    }> = [];
+
+    Object.entries(myComments || {}).forEach(([momentId, commentList]) => {
+      const moment = mockMoments.find((m) => m.id === momentId);
+      commentList.forEach((comment) => {
+        comments.push({
+          id: comment.id,
+          momentId,
+          momentTitle: moment?.content?.slice(0, 30) + '...' || '动态详情',
+          content: comment.content,
+          activityTitle: moment?.activityTitle || '活动',
+          createdAt: comment.createdAt
+        });
+      });
+    });
+
+    return comments.sort((a, b) => b.id.localeCompare(a.id));
+  }, [myComments]);
 
   const exchangedCardsList = useMemo(() => {
     if (exchangedCards.length === 0) {
-      return mockParticipants.slice(0, 3).map((p) => ({
-        ...p,
-        exchangedAt: '活动当天'
-      }));
+      return [];
     }
     return mockParticipants
       .filter((p) => exchangedCards.includes(p.id))
@@ -89,15 +102,23 @@ const ActivityHistoryPage: React.FC = () => {
     });
   }, []);
 
-  const handleMomentClick = useCallback((momentId: string) => {
-    console.log('[ActivityHistory] 查看动态:', momentId);
-    Taro.switchTab({ url: '/pages/moments/index' });
-  }, []);
+  const handleMomentClick = useCallback(
+    (momentId: string) => {
+      console.log('[ActivityHistory] 查看动态:', momentId);
+      setTargetMoment(momentId);
+      Taro.switchTab({ url: '/pages/moments/index' });
+    },
+    [setTargetMoment]
+  );
 
-  const handleCommentClick = useCallback((momentId: string) => {
-    console.log('[ActivityHistory] 查看评论动态:', momentId);
-    Taro.switchTab({ url: '/pages/moments/index' });
-  }, []);
+  const handleCommentClick = useCallback(
+    (momentId: string) => {
+      console.log('[ActivityHistory] 查看评论动态:', momentId);
+      setTargetMoment(momentId);
+      Taro.switchTab({ url: '/pages/moments/index' });
+    },
+    [setTargetMoment]
+  );
 
   const handleCardClick = useCallback((userId: string) => {
     console.log('[ActivityHistory] 查看名片用户:', userId);

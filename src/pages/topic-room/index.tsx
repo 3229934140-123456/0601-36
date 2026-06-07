@@ -1,9 +1,8 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { View, Text, Input, ScrollView } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
 import classnames from 'classnames';
 import { AnonymousQuestion } from '@/types';
-import { mockAnonymousQuestions } from '@/data/activities';
 import { mockParticipants } from '@/data/users';
 import { useActivityStore } from '@/store/useActivityStore';
 import { useUserStore } from '@/store/useUserStore';
@@ -80,7 +79,10 @@ const TopicRoomPage: React.FC = () => {
     setChatMessages(mockChats);
   }, [activityId]);
 
-  const allQuestions = mockAnonymousQuestions.concat(topicQuestions[activityId] || []);
+  const questions = useMemo(
+    () => topicQuestions[activityId] || [],
+    [topicQuestions, activityId]
+  );
 
   const handleSend = useCallback(() => {
     const text = inputText.trim();
@@ -106,15 +108,14 @@ const TopicRoomPage: React.FC = () => {
       const newQ: AnonymousQuestion = {
         id: Date.now().toString(),
         content: text,
-        isAnonymous: true,
+        isApproved: false,
         likeCount: 0,
-        createdAt: '刚刚',
-        status: 'pending'
+        createdAt: '刚刚'
       };
       addTopicQuestion(activityId, newQ);
       Taro.showToast({
-        title: '提问已提交',
-        icon: 'success'
+        title: '提问已提交，审核中',
+        icon: 'none'
       });
     }
 
@@ -123,7 +124,14 @@ const TopicRoomPage: React.FC = () => {
     setTimeout(() => {
       scrollRef.current?.scrollToOffset?.({ offset: 10000, animated: true });
     }, 100);
-  }, [inputText, isAnonymous, activeTab, currentUser, activityId, addTopicQuestion]);
+  }, [
+    inputText,
+    isAnonymous,
+    activeTab,
+    currentUser,
+    activityId,
+    addTopicQuestion
+  ]);
 
   const handleLikeQuestion = useCallback(
     (questionId: string) => {
@@ -144,12 +152,15 @@ const TopicRoomPage: React.FC = () => {
     []
   );
 
-  const displayQuestions = (() => {
+  const displayQuestions = useMemo(() => {
     if (activeTab === 'hot') {
-      return [...allQuestions].sort((a, b) => b.likeCount - a.likeCount).slice(0, 10);
+      return questions
+        .filter((q) => q.isApproved)
+        .sort((a, b) => b.likeCount - a.likeCount)
+        .slice(0, 10);
     }
-    return allQuestions;
-  })();
+    return questions;
+  }, [activeTab, questions]);
 
   const canSend = inputText.trim().length > 0;
 
@@ -211,7 +222,7 @@ const TopicRoomPage: React.FC = () => {
                   <View key={q.id} className={styles.questionCard}>
                     <View className={styles.questionHeader}>
                       <Text className={styles.questionBadge}>
-                        {q.status === 'approved' ? '已通过' : '审核中'}
+                        {q.isApproved ? '已通过' : '审核中'}
                       </Text>
                       <Text className={styles.questionTime}>{q.createdAt}</Text>
                     </View>
