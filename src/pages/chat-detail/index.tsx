@@ -3,14 +3,15 @@ import { View, Text, Input, ScrollView } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
 import classnames from 'classnames';
 import { ChatMessage, User } from '@/types';
-import { mockChatMessages, mockParticipants } from '@/data/messages';
+import { mockChatMessages } from '@/data/messages';
+import { mockParticipants } from '@/data/users';
 import { useUserStore } from '@/store/useUserStore';
 import UserAvatar from '@/components/UserAvatar';
 import styles from './index.module.scss';
 
 const ChatDetailPage: React.FC = () => {
   const router = useRouter();
-  const { currentUser } = useUserStore();
+  const { currentUser, toggleFavorite, isFavorite } = useUserStore();
   const userId = router.params.userId || '1';
   const userName = router.params.userName || '用户';
 
@@ -18,6 +19,7 @@ const ChatDetailPage: React.FC = () => {
   const [inputText, setInputText] = useState('');
   const [showToolbar, setShowToolbar] = useState(false);
   const [chatUser, setChatUser] = useState<User | null>(null);
+  const [isFav, setIsFav] = useState(false);
 
   const scrollRef = useRef<any>(null);
 
@@ -27,8 +29,9 @@ const ChatDetailPage: React.FC = () => {
       setChatUser(user);
       Taro.setNavigationBarTitle({ title: user.name });
     }
-    console.log('[ChatDetail] 聊天用户ID:', userId);
-  }, [userId, userName]);
+    setIsFav(isFavorite(userId));
+    console.log('[ChatDetail] 聊天用户ID:', userId, '是否收藏:', isFavorite(userId));
+  }, [userId, userName, isFavorite]);
 
   const handleBack = useCallback(() => {
     Taro.navigateBack();
@@ -49,6 +52,7 @@ const ChatDetailPage: React.FC = () => {
 
     setMessages((prev) => [...prev, newMsg]);
     setInputText('');
+    setShowToolbar(false);
 
     setTimeout(() => {
       const reply: ChatMessage = {
@@ -65,23 +69,58 @@ const ChatDetailPage: React.FC = () => {
 
   const handleSendCard = useCallback(() => {
     console.log('[ChatDetail] 发送名片');
+    const cardMsg: ChatMessage = {
+      id: Date.now().toString(),
+      senderId: 'me',
+      content: '我的电子名片',
+      type: 'card',
+      createdAt: '刚刚',
+      isRead: false,
+      cardData: {
+        id: currentUser.id,
+        name: currentUser.name,
+        avatar: currentUser.avatar,
+        bio: currentUser.bio,
+        tags: currentUser.tags,
+        company: currentUser.company,
+        position: currentUser.position,
+        city: currentUser.city
+      }
+    };
+
+    setMessages((prev) => [...prev, cardMsg]);
+    setShowToolbar(false);
+
+    setTimeout(() => {
+      const reply: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        senderId: userId,
+        content: '收到！很高兴认识你～',
+        type: 'text',
+        createdAt: '刚刚',
+        isRead: false
+      };
+      setMessages((prev) => [...prev, reply]);
+    }, 1500);
+  }, [currentUser, userId]);
+
+  const handleToggleFavorite = useCallback(() => {
+    toggleFavorite(userId);
+    const newFavState = !isFav;
+    setIsFav(newFavState);
     Taro.showToast({
-      title: '名片已发送',
+      title: newFavState ? '已收藏' : '已取消收藏',
       icon: 'success'
     });
-    setShowToolbar(false);
-  }, []);
+  }, [userId, isFav, toggleFavorite]);
 
   const handleMore = useCallback(() => {
     console.log('[ChatDetail] 更多操作');
     Taro.showActionSheet({
-      itemList: ['收藏联系人', '举报用户', '设置免打扰'],
+      itemList: [isFav ? '取消收藏' : '收藏联系人', '举报用户', '设置免打扰'],
       success: (res) => {
         if (res.tapIndex === 0) {
-          Taro.showToast({
-            title: '已收藏',
-            icon: 'success'
-          });
+          handleToggleFavorite();
         } else if (res.tapIndex === 1) {
           Taro.showModal({
             title: '举报用户',
@@ -96,10 +135,15 @@ const ChatDetailPage: React.FC = () => {
               }
             }
           });
+        } else if (res.tapIndex === 2) {
+          Taro.showToast({
+            title: '设置成功',
+            icon: 'none'
+          });
         }
       }
     });
-  }, []);
+  }, [isFav, handleToggleFavorite]);
 
   const renderMessage = (msg: ChatMessage, index: number) => {
     const isSelf = msg.senderId === 'me';

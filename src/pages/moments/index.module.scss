@@ -227,3 +227,242 @@
   color: $color-text-white;
   font-weight: $font-weight-medium;
 }
+
+.commentSection {
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-divider;
+}
+
+.commentList {
+  margin-bottom: $spacing-md;
+}
+
+.commentItem {
+  display: flex;
+  margin-bottom: $spacing-md;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.commentContent {
+  flex: 1;
+  margin-left: $spacing-sm;
+}
+
+.commentName {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+  margin-bottom: 4rpx;
+}
+
+.commentText {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  line-height: 1.5;
+}
+
+.commentTime {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: 4rpx;
+}
+
+.commentInputBar {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.commentInputWrapper {
+  flex: 1;
+  height: 64rpx;
+  background: $color-bg-page;
+  border-radius: $radius-button;
+  padding: 0 $spacing-md;
+  display: flex;
+  align-items: center;
+}
+
+.commentInput {
+  flex: 1;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  background: transparent;
+}
+
+.commentSendBtn {
+  padding: 0 $spacing-md;
+  height: 64rpx;
+  background: $color-bg-page;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-fast;
+}
+
+.commentSendBtnActive {
+  background: $gradient-primary;
+
+  .commentSendText {
+    color: $color-text-white;
+  }
+}
+
+.commentSendText {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  font-weight: $font-weight-medium;
+}
+
+.publishModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: $color-bg-page;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.publishContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.publishHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md $page-padding;
+  background: $color-bg-card;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.publishCancel {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  padding: $spacing-sm;
+}
+
+.publishTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.publishSubmit {
+  font-size: $font-size-md;
+  color: $color-text-tertiary;
+  padding: $spacing-sm $spacing-md;
+  font-weight: $font-weight-medium;
+}
+
+.publishSubmitActive {
+  color: $color-primary;
+}
+
+.publishTabs {
+  display: flex;
+  justify-content: center;
+  gap: $spacing-lg;
+  padding: $spacing-md $page-padding;
+  background: $color-bg-card;
+}
+
+.publishTab {
+  font-size: $font-size-md;
+  color: $color-text-tertiary;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-button;
+  transition: all $transition-fast;
+}
+
+.publishTabActive {
+  color: $color-primary;
+  background: $color-tag-bg;
+  font-weight: $font-weight-medium;
+}
+
+.publishTextarea {
+  width: 100%;
+  min-height: 200rpx;
+  padding: $spacing-lg $page-padding;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  line-height: 1.6;
+  background: $color-bg-card;
+  border: none;
+  outline: none;
+}
+
+.publishImageGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  padding: $spacing-md $page-padding;
+}
+
+.publishImageItem {
+  width: calc((100% - 32rpx) / 3);
+  aspect-ratio: 1;
+  position: relative;
+}
+
+.publishImage {
+  width: 100%;
+  height: 100%;
+  border-radius: $radius-md;
+  display: block;
+  object-fit: cover;
+}
+
+.publishImageRemove {
+  position: absolute;
+  top: -12rpx;
+  right: -12rpx;
+  width: 40rpx;
+  height: 40rpx;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  border-radius: $radius-round;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+}
+
+.publishAddImage {
+  width: calc((100% - 32rpx) / 3);
+  aspect-ratio: 1;
+  background: $color-bg-card;
+  border: 2rpx dashed $color-border;
+  border-radius: $radius-md;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.publishAddIcon {
+  font-size: 48rpx;
+  color: $color-text-tertiary;
+}
+
+.publishAddText {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}

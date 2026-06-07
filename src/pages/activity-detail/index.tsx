@@ -19,9 +19,15 @@ const ActivityDetailPage: React.FC = () => {
     if (found) {
       setActivity(found);
       setIsJoined(found.isJoined || false);
+      if (router.params.from === 'scan') {
+        Taro.showToast({
+          title: '扫码成功',
+          icon: 'success'
+        });
+      }
     }
-    console.log('[ActivityDetail] 活动ID:', activityId);
-  }, [activityId]);
+    console.log('[ActivityDetail] 活动ID:', activityId, '来源:', router.params.from);
+  }, [activityId, router.params.from]);
 
   const handleJoin = useCallback(() => {
     if (isJoined) {

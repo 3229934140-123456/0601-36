@@ -38,9 +38,49 @@ const SquarePage: React.FC = () => {
 
   const handleScan = useCallback(() => {
     console.log('[Square] 扫码加入活动');
-    Taro.showToast({
-      title: '扫码功能',
-      icon: 'none'
+    Taro.scanCode({
+      scanType: ['qrCode', 'barCode'],
+      success: (res) => {
+        console.log('[Square] 扫码成功:', res.result);
+        const scanResult = res.result;
+        let activityId = '';
+
+        if (scanResult.startsWith('activity:')) {
+          activityId = scanResult.replace('activity:', '');
+        } else if (/^\d+$/.test(scanResult)) {
+          activityId = scanResult;
+        } else {
+          try {
+            const data = JSON.parse(scanResult);
+            activityId = data.activityId || data.id;
+          } catch {
+            activityId = '1';
+          }
+        }
+
+        const activity = mockActivities.find((a) => a.id === activityId);
+        if (activity) {
+          Taro.navigateTo({
+            url: `/pages/activity-detail/index?id=${activityId}&from=scan`
+          });
+        } else {
+          Taro.showModal({
+            title: '未找到活动',
+            content: '扫描的二维码无效，请确认后重试',
+            showCancel: false
+          });
+        }
+      },
+      fail: (err) => {
+        console.log('[Square] 扫码失败/取消:', err);
+        if (err.errMsg && err.errMsg.includes('cancel')) {
+        } else {
+          Taro.showToast({
+            title: '扫码失败',
+            icon: 'none'
+          });
+        }
+      }
     });
   }, []);
 

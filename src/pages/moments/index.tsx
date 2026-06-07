@@ -1,9 +1,11 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { View, Text, Image, ScrollView } from '@tarojs/components';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { View, Text, Image, ScrollView, Input, Textarea } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import classnames from 'classnames';
-import { Moment } from '@/types';
+import { Moment, Comment } from '@/types';
 import { mockMoments } from '@/data/moments';
+import { mockComments } from '@/data/moments';
+import { useUserStore } from '@/store/useUserStore';
 import UserAvatar from '@/components/UserAvatar';
 import styles from './index.module.scss';
 
@@ -14,24 +16,120 @@ const filterTabs = [
 ];
 
 const MomentsPage: React.FC = () => {
+  const { currentUser } = useUserStore();
   const [activeFilter, setActiveFilter] = useState('all');
   const [moments, setMoments] = useState<Moment[]>(mockMoments);
   const [likedMoments, setLikedMoments] = useState<string[]>(
     mockMoments.filter((m) => m.isLiked).map((m) => m.id)
   );
 
-  const handlePublish = useCallback(() => {
-    console.log('[Moments] 发布动态');
-    Taro.showActionSheet({
-      itemList: ['发布照片', '发布文字', '发布图文'],
-      success: () => {
-        Taro.showToast({
-          title: '发布功能开发中',
-          icon: 'none'
-        });
+  const [showPublish, setShowPublish] = useState(false);
+  const [publishType, setPublishType] = useState<'text' | 'image' | 'mixed'>('text');
+  const [publishContent, setPublishContent] = useState('');
+  const [publishImages, setPublishImages] = useState<string[]>([]);
+
+  const [commentMomentId, setCommentMomentId] = useState<string | null>(null);
+  const [commentText, setCommentText] = useState('');
+  const [commentsMap, setCommentsMap] = useState<Record<string, Comment[]>>({});
+  const [showComments, setShowComments] = useState<Record<string, boolean>>({});
+
+  const scrollRef = useRef<any>(null);
+
+  useEffect(() => {
+    const map: Record<string, Comment[]> = {};
+    mockMoments.forEach((m) => {
+      map[m.id] = mockComments;
+    });
+    setCommentsMap(map);
+    console.log('[Moments] 页面加载完成，动态数量:', moments.length);
+  }, [moments.length]);
+
+  const handlePublishClick = useCallback(() => {
+    console.log('[Moments] 打开发布');
+    setPublishContent('');
+    setPublishImages([]);
+    setPublishType('text');
+    setShowPublish(true);
+  }, []);
+
+  const handleChooseImage = useCallback(() => {
+    console.log('[Moments] 选择图片');
+    Taro.chooseImage({
+      count: 9 - publishImages.length,
+      sizeType: ['compressed'],
+      sourceType: ['album', 'camera'],
+      success: (res) => {
+        const newImages = res.tempFilePaths || res.tempFiles?.map((f) => f.path) || [];
+        setPublishImages((prev) => [...prev, ...newImages].slice(0, 9));
+      },
+      fail: (err) => {
+        if (!err.errMsg?.includes('cancel')) {
+          const mockImages = [
+            'https://picsum.photos/id/237/400/400',
+            'https://picsum.photos/id/238/400/400'
+          ];
+          setPublishImages((prev) => [...prev, ...mockImages].slice(0, 9));
+        }
       }
     });
-  }, []);
+  }, [publishImages.length]);
+
+  const handleSubmitPublish = useCallback(() => {
+    const content = publishContent.trim();
+    if (publishType === 'text' && !content) {
+      Taro.showToast({
+        title: '请输入内容',
+        icon: 'none'
+      });
+      return;
+    }
+    if (publishType === 'image' && publishImages.length === 0) {
+      Taro.showToast({
+        title: '请选择图片',
+        icon: 'none'
+      });
+      return;
+    }
+    if (publishType === 'mixed' && !content && publishImages.length === 0) {
+      Taro.showToast({
+        title: '请输入内容或选择图片',
+        icon: 'none'
+      });
+      return;
+    }
+
+    console.log('[Moments] 发布动态:', { type: publishType, content, images: publishImages });
+
+    const newMoment: Moment = {
+      id: Date.now().toString(),
+      userId: currentUser.id,
+      userName: currentUser.name,
+      userAvatar: currentUser.avatar,
+      content: content || '分享图片',
+      images: publishImages,
+      activityId: '1',
+      activityTitle: '2024 创业者交流会',
+      likeCount: 0,
+      commentCount: 0,
+      isLiked: false,
+      createdAt: '刚刚'
+    };
+
+    setMoments((prev) => [newMoment, ...prev]);
+    setCommentsMap((prev) => ({ ...prev, [newMoment.id]: [] }));
+    setShowPublish(false);
+    setPublishContent('');
+    setPublishImages([]);
+
+    Taro.showToast({
+      title: '发布成功',
+      icon: 'success'
+    });
+
+    setTimeout(() => {
+      scrollRef.current?.scrollToOffset?.({ offset: 0, animated: true });
+    }, 300);
+  }, [publishContent, publishImages, publishType, currentUser]);
 
   const handleLike = useCallback(
     (momentId: string) => {
@@ -51,13 +149,47 @@ const MomentsPage: React.FC = () => {
     [likedMoments]
   );
 
-  const handleComment = useCallback((momentId: string) => {
-    console.log('[Moments] 评论动态:', momentId);
+  const handleToggleComments = useCallback((momentId: string) => {
+    console.log('[Moments] 切换评论区:', momentId);
+    setShowComments((prev) => ({ ...prev, [momentId]: !prev[momentId] }));
+    if (!showComments[momentId]) {
+      setCommentMomentId(momentId);
+      setCommentText('');
+    }
+  }, [showComments]);
+
+  const handleSubmitComment = useCallback(() => {
+    if (!commentMomentId || !commentText.trim()) return;
+
+    console.log('[Moments] 提交评论:', commentMomentId, commentText);
+
+    const newComment: Comment = {
+      id: Date.now().toString(),
+      userId: currentUser.id,
+      userName: currentUser.name,
+      userAvatar: currentUser.avatar,
+      content: commentText.trim(),
+      createdAt: '刚刚',
+      likeCount: 0
+    };
+
+    setCommentsMap((prev) => ({
+      ...prev,
+      [commentMomentId]: [...(prev[commentMomentId] || []), newComment]
+    }));
+
+    setMoments((prev) =>
+      prev.map((m) =>
+        m.id === commentMomentId ? { ...m, commentCount: m.commentCount + 1 } : m
+      )
+    );
+
+    setCommentText('');
     Taro.showToast({
-      title: '评论功能开发中',
-      icon: 'none'
+      title: '评论成功',
+      icon: 'success'
     });
-  }, []);
+  }, [commentMomentId, commentText, currentUser]);
 
   const handleMore = useCallback((momentId: string) => {
     console.log('[Moments] 更多操作:', momentId);
@@ -78,6 +210,11 @@ const MomentsPage: React.FC = () => {
               }
             }
           });
+        } else if (res.tapIndex === 2) {
+          Taro.showToast({
+            title: '分享成功',
+            icon: 'success'
+          });
         }
       }
     });
@@ -85,10 +222,14 @@ const MomentsPage: React.FC = () => {
 
   const handleUserClick = useCallback((userId: string) => {
     console.log('[Moments] 查看用户:', userId);
-    Taro.navigateTo({
-      url: `/pages/chat-detail/index?userId=${userId}`
-    });
-  }, []);
+    if (userId === currentUser.id) {
+      Taro.switchTab({ url: '/pages/profile/index' });
+    } else {
+      Taro.navigateTo({
+        url: `/pages/chat-detail/index?userId=${userId}`
+      });
+    }
+  }, [currentUser.id]);
 
   const handleImagePreview = useCallback((images: string[], current: number) => {
     console.log('[Moments] 预览图片');
@@ -104,10 +245,6 @@ const MomentsPage: React.FC = () => {
     if (activeFilter === 'following') return true;
     return true;
   });
-
-  useEffect(() => {
-    console.log('[Moments] 页面加载完成，动态数量:', moments.length);
-  }, [moments.length]);
 
   const renderImages = (images: string[]) => {
     if (!images || images.length === 0) return null;
@@ -138,7 +275,7 @@ const MomentsPage: React.FC = () => {
     <View className={styles.page}>
       <View className={styles.header}>
         <Text className={styles.headerTitle}>动态</Text>
-        <View className={styles.publishBtn} onClick={handlePublish}>
+        <View className={styles.publishBtn} onClick={handlePublishClick}>
           <Text className={styles.publishBtnText}>+ 发布</Text>
         </View>
       </View>
@@ -158,7 +295,7 @@ const MomentsPage: React.FC = () => {
         ))}
       </View>
 
-      <ScrollView scrollY className={styles.momentList}>
+      <ScrollView scrollY className={styles.momentList} ref={scrollRef}>
         {filteredMoments.length > 0 ? (
           filteredMoments.map((moment) => (
             <View key={moment.id} className={styles.momentCard}>
@@ -204,7 +341,7 @@ const MomentsPage: React.FC = () => {
                   </View>
                   <View
                     className={styles.actionItem}
-                    onClick={() => handleComment(moment.id)}
+                    onClick={() => handleToggleComments(moment.id)}
                   >
                     <Text className={styles.actionIcon}>💬</Text>
                     <Text className={styles.actionText}>{moment.commentCount}</Text>
@@ -215,18 +352,141 @@ const MomentsPage: React.FC = () => {
                   <Text className={styles.actionText}>分享</Text>
                 </View>
               </View>
+
+              {showComments[moment.id] && (
+                <View className={styles.commentSection}>
+                  {commentsMap[moment.id]?.length > 0 && (
+                    <View className={styles.commentList}>
+                      {commentsMap[moment.id].map((comment) => (
+                        <View key={comment.id} className={styles.commentItem}>
+                          <UserAvatar src={comment.userAvatar} size="small" />
+                          <View className={styles.commentContent}>
+                            <Text className={styles.commentName}>{comment.userName}</Text>
+                            <Text className={styles.commentText}>{comment.content}</Text>
+                            <Text className={styles.commentTime}>{comment.createdAt}</Text>
+                          </View>
+                        </View>
+                      ))}
+                    </View>
+                  )}
+
+                  <View className={styles.commentInputBar}>
+                    <UserAvatar src={currentUser.avatar} size="small" />
+                    <View className={styles.commentInputWrapper}>
+                      <Input
+                        className={styles.commentInput}
+                        placeholder="说点什么..."
+                        value={commentMomentId === moment.id ? commentText : ''}
+                        onInput={(e) => setCommentText(e.detail.value)}
+                        onConfirm={handleSubmitComment}
+                        onFocus={() => {
+                          setCommentMomentId(moment.id);
+                        }}
+                      />
+                    </View>
+                    <View
+                      className={classnames(
+                        styles.commentSendBtn,
+                        commentMomentId === moment.id && commentText.trim() && styles.commentSendBtnActive
+                      )}
+                      onClick={handleSubmitComment}
+                    >
+                      <Text className={styles.commentSendText}>发送</Text>
+                    </View>
+                  </View>
+                </View>
+              )}
             </View>
           ))
         ) : (
           <View className={styles.emptyState}>
             <Text className={styles.emptyIcon}>📷</Text>
             <Text className={styles.emptyText}>还没有动态，快来发布第一条吧</Text>
-            <View className={styles.emptyBtn} onClick={handlePublish}>
+            <View className={styles.emptyBtn} onClick={handlePublishClick}>
               <Text className={styles.emptyBtnText}>发布动态</Text>
             </View>
           </View>
         )}
       </ScrollView>
+
+      {showPublish && (
+        <View className={styles.publishModal}>
+          <View className={styles.publishContent}>
+            <View className={styles.publishHeader}>
+              <Text
+                className={styles.publishCancel}
+                onClick={() => setShowPublish(false)}
+              >
+                取消
+              </Text>
+              <Text className={styles.publishTitle}>发布动态</Text>
+              <Text
+                className={classnames(
+                  styles.publishSubmit,
+                  (publishContent.trim() || publishImages.length > 0) && styles.publishSubmitActive
+                )}
+                onClick={handleSubmitPublish}
+              >
+                发布
+              </Text>
+            </View>
+
+            <View className={styles.publishTabs}>
+              {[
+                { key: 'text', label: '文字' },
+                { key: 'image', label: '照片' },
+                { key: 'mixed', label: '图文' }
+              ].map((tab) => (
+                <Text
+                  key={tab.key}
+                  className={classnames(
+                    styles.publishTab,
+                    publishType === tab.key && styles.publishTabActive
+                  )}
+                  onClick={() => setPublishType(tab.key as any)}
+                >
+                  {tab.label}
+                </Text>
+              ))}
+            </View>
+
+            {(publishType === 'text' || publishType === 'mixed') && (
+              <Textarea
+                className={styles.publishTextarea}
+                placeholder="分享你的想法..."
+                value={publishContent}
+                onInput={(e) => setPublishContent(e.detail.value)}
+                maxLength={500}
+                autoHeight
+              />
+            )}
+
+            {(publishType === 'image' || publishType === 'mixed') && (
+              <View className={styles.publishImageGrid}>
+                {publishImages.map((img, idx) => (
+                  <View key={idx} className={styles.publishImageItem}>
+                    <Image className={styles.publishImage} src={img} mode="aspectFill" />
+                    <View
+                      className={styles.publishImageRemove}
+                      onClick={() =>
+                        setPublishImages((prev) => prev.filter((_, i) => i !== idx))
+                      }
+                    >
+                      <Text>×</Text>
+                    </View>
+                  </View>
+                ))}
+                {publishImages.length < 9 && (
+                  <View className={styles.publishAddImage} onClick={handleChooseImage}>
+                    <Text className={styles.publishAddIcon}>+</Text>
+                    <Text className={styles.publishAddText}>添加图片</Text>
+                  </View>
+                )}
+              </View>
+            )}
+          </View>
+        </View>
+      )}
     </View>
   );
 };

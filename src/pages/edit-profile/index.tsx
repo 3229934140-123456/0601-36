@@ -1,23 +1,31 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { View, Text, Input, Image } from '@tarojs/components';
-import Taro from '@tarojs/taro';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { View, Text, Input, Image, ScrollView } from '@tarojs/components';
+import Taro, { useRouter } from '@tarojs/taro';
 import classnames from 'classnames';
 import { useUserStore } from '@/store/useUserStore';
 import { mockInterestTags } from '@/data/users';
 import styles from './index.module.scss';
 
 const EditProfilePage: React.FC = () => {
+  const router = useRouter();
   const { currentUser, updateUser } = useUserStore();
+  const scrollRef = useRef<any>(null);
+  const tagsRef = useRef<any>(null);
 
   const [name, setName] = useState(currentUser.name);
   const [company, setCompany] = useState(currentUser.company || '');
   const [position, setPosition] = useState(currentUser.position || '');
   const [bio, setBio] = useState(currentUser.bio || '');
-  const [selectedTags, setSelectedTags] = useState<string[]>(currentUser.tags);
+  const [selectedTags, setSelectedTags] = useState<string[]>([...currentUser.tags]);
 
   useEffect(() => {
-    console.log('[EditProfile] 页面加载，当前用户:', currentUser.name);
-  }, [currentUser.name]);
+    console.log('[EditProfile] 页面加载，当前用户:', currentUser.name, 'tab:', router.params.tab);
+    if (router.params.tab === 'tags') {
+      setTimeout(() => {
+        tagsRef.current?.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
+      }, 300);
+    }
+  }, [currentUser.name, router.params.tab]);
 
   const handleSave = useCallback(() => {
     console.log('[EditProfile] 保存资料:', { name, company, position, bio, selectedTags });
@@ -68,14 +76,14 @@ const EditProfilePage: React.FC = () => {
   }, []);
 
   const tagCategories = [
-    { title: '兴趣爱好', tags: mockInterestTags.filter((t) => t.category === 'hobby').map((t) => t.name) },
-    { title: '行业领域', tags: mockInterestTags.filter((t) => t.category === 'industry').map((t) => t.name) },
-    { title: '技能特长', tags: mockInterestTags.filter((t) => t.category === 'skill').map((t) => t.name) },
-    { title: '社交意向', tags: mockInterestTags.filter((t) => t.category === 'intent').map((t) => t.name) }
+    { title: '职业方向', tags: mockInterestTags.filter((t) => t.category === '职业').map((t) => t.name) },
+    { title: '科技前沿', tags: mockInterestTags.filter((t) => t.category === '科技').map((t) => t.name) },
+    { title: '兴趣爱好', tags: mockInterestTags.filter((t) => t.category === '兴趣').map((t) => t.name) },
+    { title: '自我成长', tags: mockInterestTags.filter((t) => t.category === '成长').map((t) => t.name) }
   ];
 
   return (
-    <View className={styles.page}>
+    <ScrollView scrollY className={styles.page} ref={scrollRef}>
       <View className={styles.avatarSection}>
         <View className={styles.avatarWrapper} onClick={handleChangeAvatar}>
           <Image className={styles.avatar} src={currentUser.avatar} mode="aspectFill" />
@@ -129,7 +137,7 @@ const EditProfilePage: React.FC = () => {
         </View>
       </View>
 
-      <View className={styles.tagsSection}>
+      <View className={styles.tagsSection} ref={tagsRef}>
         <View className={styles.sectionTitle}>
           <Text>兴趣标签</Text>
           <Text className={styles.sectionSubtitle}>{selectedTags.length}/10</Text>
@@ -166,7 +174,7 @@ const EditProfilePage: React.FC = () => {
       <View className={styles.saveBtn} onClick={handleSave}>
         <Text className={styles.saveBtnText}>保存修改</Text>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 

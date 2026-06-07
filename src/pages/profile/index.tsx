@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { useUserStore } from '@/store/useUserStore';
-import { mockFavorites } from '@/data/users';
+import { mockParticipants } from '@/data/users';
 import UserAvatar from '@/components/UserAvatar';
 import styles from './index.module.scss';
 
@@ -17,6 +17,10 @@ const menuItems = [
 
 const ProfilePage: React.FC = () => {
   const { currentUser, favorites } = useUserStore();
+
+  const favoriteUsers = useMemo(() => {
+    return mockParticipants.filter((p) => favorites.includes(p.id));
+  }, [favorites]);
 
   const handleEditProfile = useCallback(() => {
     console.log('[Profile] 编辑资料');
@@ -122,18 +126,25 @@ const ProfilePage: React.FC = () => {
           <Text className={styles.sectionTitle}>收藏的联系人</Text>
           <Text className={styles.sectionEdit}>全部 ›</Text>
         </View>
-        <View className={styles.favoritesGrid}>
-          {mockFavorites.slice(0, 4).map((user) => (
-            <View
-              key={user.id}
-              className={styles.favoriteItem}
-              onClick={() => handleFavoriteClick(user.id)}
-            >
-              <UserAvatar src={user.avatar} size="large" />
-              <Text className={styles.favoriteName}>{user.name}</Text>
-            </View>
-          ))}
-        </View>
+        {favoriteUsers.length > 0 ? (
+          <View className={styles.favoritesGrid}>
+            {favoriteUsers.slice(0, 4).map((user) => (
+              <View
+                key={user.id}
+                className={styles.favoriteItem}
+                onClick={() => handleFavoriteClick(user.id)}
+              >
+                <UserAvatar src={user.avatar} size="large" />
+                <Text className={styles.favoriteName}>{user.name}</Text>
+              </View>
+            ))}
+          </View>
+        ) : (
+          <View className={styles.emptyFavorites}>
+            <Text style={{ fontSize: '48rpx', marginBottom: '16rpx' }}>🤝</Text>
+            <Text style={{ fontSize: '24rpx', color: '#86909C' }}>还没有收藏的联系人</Text>
+          </View>
+        )}
       </View>
 
       <View className={styles.menuSection}>

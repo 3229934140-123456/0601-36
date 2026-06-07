@@ -2,8 +2,8 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import classnames from 'classnames';
-import { MatchResult, InterestTag } from '@/types';
-import { mockMatchResults, mockInterestTags } from '@/data/users';
+import { MatchResult, InterestTag, User } from '@/types';
+import { mockInterestTags, mockParticipants } from '@/data/users';
 import { useUserStore } from '@/store/useUserStore';
 import UserAvatar from '@/components/UserAvatar';
 import styles from './index.module.scss';
@@ -30,7 +30,33 @@ const MatchingPage: React.FC = () => {
         ? prev
         : [...prev, tagName]
     );
+    setHasMatched(false);
   }, []);
+
+  const calculateMatch = useCallback((user: User, tags: string[]): MatchResult | null => {
+    const commonTags = user.tags.filter((t) => tags.includes(t));
+    if (commonTags.length === 0) return null;
+
+    const totalTags = new Set([...tags, ...user.tags]).size;
+    const baseScore = Math.round((commonTags.length / totalTags) * 100);
+    const randomOffset = Math.floor(Math.random() * 10) - 5;
+    const matchScore = Math.min(95, Math.max(30, baseScore + randomOffset));
+
+    return {
+      user,
+      commonTags,
+      matchScore
+    };
+  }, []);
+
+  const shuffleArray = <T,>(array: T[]): T[] => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
 
   const handleMatch = useCallback(() => {
     if (selectedTags.length === 0) {
@@ -46,16 +72,25 @@ const MatchingPage: React.FC = () => {
     setHasMatched(false);
 
     setTimeout(() => {
-      const results = mockMatchResults.map((result) => ({
-        ...result,
-        matchScore: Math.floor(Math.random() * 30) + 70
-      }));
-      setMatchResults(results.sort((a, b) => b.matchScore - a.matchScore));
+      const allMatches: MatchResult[] = [];
+      const shuffledParticipants = shuffleArray(mockParticipants);
+
+      shuffledParticipants.forEach((user) => {
+        const result = calculateMatch(user, selectedTags);
+        if (result) {
+          allMatches.push(result);
+        }
+      });
+
+      allMatches.sort((a, b) => b.matchScore - a.matchScore);
+      const topMatches = allMatches.slice(0, 6);
+
+      setMatchResults(topMatches);
       setIsMatching(false);
       setHasMatched(true);
-      console.log('[Matching] 配对完成，找到', results.length, '位匹配者');
+      console.log('[Matching] 配对完成，找到', topMatches.length, '位匹配者');
     }, 1500);
-  }, [selectedTags]);
+  }, [selectedTags, calculateMatch]);
 
   const handleChat = useCallback((userId: string, userName: string) => {
     console.log('[Matching] 发起聊天:', userId);
